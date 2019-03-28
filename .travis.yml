@@ -1,0 +1,21 @@
+language: php
+
+php:
+  - '7.1'
+  - '7.2'
+  - '7.3'
+
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+  - travis_retry composer self-update
+  - travis_retry composer install --no-interaction --prefer-source
+
+script: 
+  - mkdir -p build/logs
+  - php vendor/bin/phpstan analyze --level max src
+  - vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
+
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
