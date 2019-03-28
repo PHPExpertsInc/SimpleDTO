@@ -1,8 +1,8 @@
-# RESTSpeaker
+# SimpleDTO
 
-[![TravisCI](https://travis-ci.org/phpexpertsinc/SimpleDTO.svg?branch=master)](https://travis-ci.org/phpexpertsinc/RESTSpeaker)
-[![Maintainability](https://api.codeclimate.com/v1/badges/ba05b5ebfa6bb211619e/maintainability)](https://codeclimate.com/github/phpexpertsinc/RESTSpeaker/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/ba05b5ebfa6bb211619e/test_coverage)](https://codeclimate.com/github/phpexpertsinc/RESTSpeaker/test_coverage)
+[![TravisCI](https://travis-ci.org/phpexpertsinc/SimpleDTO.svg?branch=master)](https://travis-ci.org/phpexpertsinc/SimpleDTO)
+[![Maintainability](https://api.codeclimate.com/v1/badges/503cba0c53eb262c947a/maintainability)](https://codeclimate.com/github/phpexpertsinc/SimpleDTO/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/503cba0c53eb262c947a/test_coverage)](https://codeclimate.com/github/phpexpertsinc/SimpleDTO/test_coverage)
 
 SimpleDTO is a PHP Experts, Inc., Project meant to facilitate easy Data Transfer Objects.
 
