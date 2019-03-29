@@ -71,17 +71,17 @@ echo json_encode($birthdayDTO);
 
 # Use cases
 
-PHPExperts\SimpleDTO\Tests\SimpleDTO
- ✔ Properties are set via the constructor
- ✔ Cannot initialize with a nonexisting property
- ✔ Properties are accessed as public properties
- ✔ Accessing a nonexisting property throws an error
- ✔ Each DTO is immutable
- ✔ Setting any property returns an exception
- ✔ Properties in the dates static property become carbon dates
- ✔ Can easily output to array
- ✔ Can easily be json encoded
- ✔ Can easily be json decoded
+PHPExperts\SimpleDTO\Tests\SimpleDTO  
+ ✔ Each DTO is immutable  
+ ✔ Properties are set via the constructor  
+ ✔ Cannot initialize with a nonexisting property  
+ ✔ Properties are accessed as public properties  
+ ✔ Accessing a nonexisting property throws an error  
+ ✔ Setting any property returns an exception  
+ ✔ Properties in the dates static property become carbon dates  
+ ✔ Can easily output to array  
+ ✔ Can easily be json encoded  
+ ✔ Can easily be json decoded  
 
 ## Testing
 
