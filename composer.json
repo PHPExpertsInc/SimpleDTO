@@ -21,7 +21,7 @@
     ],
     "require": {
         "php": ">=7.1",
-        "nesbot/carbon": "^2.16"
+        "nesbot/carbon": "2.*"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.0|8.0",
