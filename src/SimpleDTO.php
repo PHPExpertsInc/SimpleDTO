@@ -16,41 +16,141 @@ namespace PHPExperts\SimpleDTO;
 
 use Carbon\Carbon;
 use Error;
+use InvalidArgumentException;
 use JsonSerializable;
+use PHPExperts\DataTypeValidator\DataTypeValidator;
+use PHPExperts\DataTypeValidator\InvalidDataTypeException;
+use PHPExperts\DataTypeValidator\IsAStrictDataType;
 use ReflectionClass;
-use Serializable;
 
 abstract class SimpleDTO implements JsonSerializable
 {
-    /** @var array Dates that should be converted to Carbon instances. */
-    protected static $DATES = [];
+    /** @var  */
+    private $validator;
 
-    private function assertPropertyIsDefined(string $property)
+    /** @var array */
+    private $dataTypeRules = [];
+
+    /** @var array */
+    private $data = [];
+
+    public function __construct(array $input, DataTypeValidator $validator = null)
     {
-        if (!property_exists($this, $property)) {
-            $self = static::class;
-            throw new Error("Undefined property: {$self}::$property.");
+        if (!$validator) {
+            $validator = new DataTypeValidator(new IsAStrictDataType());
+        }
+        $this->validator = $validator;
+
+        $this->loadConcreteProperties();
+
+        // Add in default values if they're missing.
+        $this->spliceInDefaultValues($input);
+
+        $this->loadDynamicProperties($input);
+    }
+
+    private function loadConcreteProperties()
+    {
+        $properties = (new ReflectionClass($this))->getProperties(\ReflectionProperty::IS_PROTECTED);
+        foreach ($properties as $property) {
+            if ($property->isStatic()) {
+                continue;
+            }
+
+            // Store the properties' default values.
+            $propertyName = $property->getName();
+            $this->data[$propertyName] = $this->$propertyName;
+
+            // Unset the property to mitigate shenanigans.
+            unset($this->$propertyName);
         }
     }
 
-    public function __construct(array $input)
+    private function spliceInDefaultValues(array &$input)
     {
-        foreach ($input as $property => $value) {
-            $this->assertPropertyIsDefined($property);
+        $new = [];
+        $inputDiff = array_diff_key($this->data, $input);
+        if (!empty($inputDiff)) {
+            foreach ($inputDiff as $key => $diff) {
+                if ($diff !== null) {
+                    $new[$key] = $diff;
+                }
+            }
+        }
 
-            if (in_array($property, static::$DATES) && !($value instanceof Carbon)) {
-                $value = Carbon::createFromDate($value);
+        $new += $input;
+        $input = $new;
+    }
+
+    private function loadDynamicProperties(array $input)
+    {
+        $noProps = function () {
+            throw new \LogicException('No DTO class property docblocks have been added.');
+        };
+
+        $properties = (new ReflectionClass($this))->getDocComment();
+        if (!$properties) {
+            $noProps();
+        }
+
+        preg_match_all('/@property(-read)* (.*?)\n/s', $properties, $annotations);
+
+        if (empty($annotations[2])) {
+            $noProps();
+        }
+
+        foreach ($annotations[2] as $annotation) {
+            $prop = explode(' ', $annotation);
+            if (empty($prop[0]) || empty($prop[1])) {
+                throw new InvalidDataTypeException('A class data type docblock is malformed.');
             }
 
-            $this->$property = $value;
+            $this->dataTypeRules[substr($prop[1], 1)] = $prop[0];
         }
+
+        $rulesDiff = array_diff_key($this->data, $this->dataTypeRules);
+        if (!empty($rulesDiff)) {
+            throw new \LogicException('You need class-level docblocks for $' . implode(', $', array_keys($rulesDiff)) . '.');
+        }
+
+        // Handle any string Carbon objects.
+        foreach ($this->dataTypeRules as $property => $type) {
+            if ($type === 'Carbon' || $type === Carbon::class || $type === '\\' . Carbon::class) {
+                if (!empty($input[$property]) && is_string($input[$property])) {
+                    try {
+                        $input[$property] = Carbon::parse($input[$property]);
+                    } catch (\Exception $e) {
+                        throw new InvalidDataTypeException("$property is not a parsable date: '{$input[$property]}'.");
+                    }
+                }
+            }
+        }
+
+        $this->validator->validate($input, $this->dataTypeRules);
+
+        $inputDiff = array_diff_key($input, $this->dataTypeRules);
+        if (!empty($inputDiff)) {
+            $self = static::class;
+            $property = key($inputDiff);
+            throw new Error("Undefined property: {$self}::\${$property}.");
+        }
+
+        $this->data = $input;
+    }
+
+    public function __isset(string $property)
+    {
+        return array_key_exists($property, $this->data);
     }
 
     public function __get(string $property)
     {
-        $this->assertPropertyIsDefined($property);
+        if (!$this->__isset($property)) {
+            $self = static::class;
+            throw new Error("Undefined property: {$self}::$property.");
+        }
 
-        return $this->$property;
+        return $this->data[$property];
     }
 
     public function __set(string $property, $value)
@@ -60,19 +160,7 @@ abstract class SimpleDTO implements JsonSerializable
 
     public function toArray(): array
     {
-        $properties = (new ReflectionClass($this))->getProperties(\ReflectionProperty::IS_PROTECTED);
-
-        $results = [];
-        foreach ($properties as $property) {
-            if ($property->isStatic()) {
-                continue;
-            }
-
-            $property->setAccessible(true);
-            $results[$property->getName()] = $property->getValue($this);
-        }
-
-        return $results;
+        return $this->data;
     }
 
     public function jsonSerialize(): array

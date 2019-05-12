@@ -18,9 +18,17 @@ use PHPExperts\SimpleDTO\SimpleDTO;
 
 /**
  * @property-read string $name
+ * @property-read float $age
+ * @property-read int $year
  */
 class MyTestDTO extends SimpleDTO
 {
     /** @var string */
     protected $name;
+
+    /** @var float */
+    protected $age;
+
+    /** @var int */
+    protected $year = 2019;
 }
