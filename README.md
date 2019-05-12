@@ -75,6 +75,45 @@ echo json_encode($birthdayDTO);
 */
 ```
 
+### Fuzzy Data Types
+
+But what if you aren't ready / able to dive into strict PHP data types yet?
+
+Well, just instantiate the parent class like this:
+
+```php
+    use PHPExperts\DataTypeValidator\DataTypeValidator;
+    use PHPExperts\DataTypeValidator\IsAFuzzyDataType;
+    
+    /**
+     * @property int   $daysAlive
+     * @property float $age
+     * @property bool  $isHappy
+     */
+    class MyFuzzyDTO extends SimpleDTO
+    {
+        public function __construct(array $input)
+        {
+            parent::__construct($input, new DataTypeValidator(new IsAFuzzyDataType());
+        }
+    }
+
+    $person = new MyFuzzyDTO([
+        'daysAlive' => '5000',
+        'age'       => '13.689',
+        'isHappy'   => 1,
+    ]);
+
+    echo json_encode($person, JSON_PRETTY_PRINT);
+    /*
+    {
+        "daysAlive": "5000",
+        "age": "13.689",
+        "isHappy": 1
+    }
+    */
+```
+
 # Use cases
 PHPExperts\SimpleDTO\SimpleDTO
  ✔ Properties are set via the constructor

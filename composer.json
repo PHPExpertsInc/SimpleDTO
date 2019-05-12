@@ -21,6 +21,7 @@
     ],
     "require": {
         "php": ">=7.1",
+        "ext-json": "*",
         "nesbot/carbon": "2.*",
         "phpexperts/datatype-validator": "^1.0"
     },
