@@ -84,6 +84,30 @@ abstract class SimpleDTO implements JsonSerializable
 
     private function loadDynamicProperties(array $input)
     {
+        $this->loadDynamicDTORules();
+
+        $rulesDiff = array_diff_key($this->data, $this->dataTypeRules);
+        if (!empty($rulesDiff)) {
+            throw new \LogicException('You need class-level docblocks for $' . implode(', $', array_keys($rulesDiff)) . '.');
+        }
+
+        // Handle any string Carbon objects.
+        $this->processCarbonProperties($input);
+
+        $this->validator->validate($input, $this->dataTypeRules);
+
+        $inputDiff = array_diff_key($input, $this->dataTypeRules);
+        if (!empty($inputDiff)) {
+            $self = static::class;
+            $property = key($inputDiff);
+            throw new Error("Undefined property: {$self}::\${$property}.");
+        }
+
+        $this->data = $input;
+    }
+
+    private function loadDynamicDTORules()
+    {
         $noProps = function () {
             throw new \LogicException('No DTO class property docblocks have been added.');
         };
@@ -107,16 +131,13 @@ abstract class SimpleDTO implements JsonSerializable
 
             $this->dataTypeRules[substr($prop[1], 1)] = $prop[0];
         }
+    }
 
-        $rulesDiff = array_diff_key($this->data, $this->dataTypeRules);
-        if (!empty($rulesDiff)) {
-            throw new \LogicException('You need class-level docblocks for $' . implode(', $', array_keys($rulesDiff)) . '.');
-        }
-
-        // Handle any string Carbon objects.
+    private function processCarbonProperties(array &$input)
+    {
         foreach ($this->dataTypeRules as $property => $type) {
-            if ($type === 'Carbon' || $type === Carbon::class || $type === '\\' . Carbon::class) {
-                if (!empty($input[$property]) && is_string($input[$property])) {
+            if (in_array($type, ['Carbon', Carbon::class, '\\' . Carbon::class])) {
+                if (is_string($input[$property])) {
                     try {
                         $input[$property] = Carbon::parse($input[$property]);
                     } catch (\Exception $e) {
@@ -125,17 +146,6 @@ abstract class SimpleDTO implements JsonSerializable
                 }
             }
         }
-
-        $this->validator->validate($input, $this->dataTypeRules);
-
-        $inputDiff = array_diff_key($input, $this->dataTypeRules);
-        if (!empty($inputDiff)) {
-            $self = static::class;
-            $property = key($inputDiff);
-            throw new Error("Undefined property: {$self}::\${$property}.");
-        }
-
-        $this->data = $input;
     }
 
     public function __isset(string $property)
