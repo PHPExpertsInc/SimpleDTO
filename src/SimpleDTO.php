@@ -16,7 +16,6 @@ namespace PHPExperts\SimpleDTO;
 
 use Carbon\Carbon;
 use Error;
-use InvalidArgumentException;
 use JsonSerializable;
 use PHPExperts\DataTypeValidator\DataTypeValidator;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
@@ -25,7 +24,7 @@ use ReflectionClass;
 
 abstract class SimpleDTO implements JsonSerializable
 {
-    /** @var  */
+    /** @var DataTypeValidator */
     private $validator;
 
     /** @var array */
@@ -108,19 +107,15 @@ abstract class SimpleDTO implements JsonSerializable
 
     private function loadDynamicDTORules()
     {
-        $noProps = function () {
-            throw new \LogicException('No DTO class property docblocks have been added.');
-        };
-
         $properties = (new ReflectionClass($this))->getDocComment();
         if (!$properties) {
-            $noProps();
+            throw new \LogicException('No DTO class property docblocks have been added.');
         }
 
         preg_match_all('/@property(-read)* (.*?)\n/s', $properties, $annotations);
 
         if (empty($annotations[2])) {
-            $noProps();
+            throw new \LogicException('No DTO class property docblocks have been added.');
         }
 
         foreach ($annotations[2] as $annotation) {
