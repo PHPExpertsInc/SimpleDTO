@@ -1,0 +1,15 @@
+{
+  "version": "2",
+  "checks": {
+    "complex-logic": {
+      "config": {
+        "threshold": 7
+      }
+    },
+    "method-complexity": {
+      "config": {
+        "threshold": 10
+      }
+    }
+  }
+}

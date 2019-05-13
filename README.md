@@ -11,8 +11,6 @@ the __constructor and/or as a default value on the property itself.
 
 The DTOs are immutable: Once created, they cannot be changed. Create a new object instead.
 
-
-
 ## Installation
 
 Via Composer
@@ -22,6 +20,10 @@ composer require phpexperts/simple-dto
 ```
 
 ## Usage
+
+As of version 2, you *must* define class-level @property docblocks for each one of your properties.
+
+You also must define the data type.
 
 ```php
 use Carbon\Carbon;
@@ -38,8 +40,6 @@ class BirthdayDTO extends SimpleDTO
     
     /** @var Carbon */
     protected $date;
-    
-    protected static $DATES = ['date'];
 }
 
 $birthdayDTO = new BirthdayDTO([
@@ -50,7 +50,8 @@ $birthdayDTO = new BirthdayDTO([
 // Access as a property:
 echo $birthday->name; // Donald J. Trump
 
-// Properties in the $DATES property are auto-converted to Carbon.
+// Properties with the data type of "Carbon" or "Carbon\Carbon" 
+// are automagically converted to Carbon objects.
 echo $birthday->date->format('F jS, Y'); // June 14th, 1946
 
 // Easily output as an array:
@@ -58,6 +59,11 @@ $birthday->toArray();
 
 // Copy from one to another:
 $newDTO = new BirthdayDTO($birthdayDTO->toArray());
+
+// Copy from one to another, with new properties:
+$newDTO = new BirthdayDTO($birthdayDTO->toArray() + [
+    'date' => '2020-11-03',
+]);
 
 // Easily output as JSON:
 echo json_encode($birthdayDTO);
@@ -69,19 +75,63 @@ echo json_encode($birthdayDTO);
 */
 ```
 
-# Use cases
+### Fuzzy Data Types
 
-PHPExperts\SimpleDTO\Tests\SimpleDTO  
- ✔ Each DTO is immutable  
- ✔ Properties are set via the constructor  
- ✔ Cannot initialize with a nonexisting property  
- ✔ Properties are accessed as public properties  
- ✔ Accessing a nonexisting property throws an error  
- ✔ Setting any property returns an exception  
- ✔ Properties in the dates static property become carbon dates  
- ✔ Can easily output to array  
- ✔ Can easily be json encoded  
- ✔ Can easily be json decoded  
+But what if you aren't ready / able to dive into strict PHP data types yet?
+
+Well, just instantiate the parent class like this:
+
+```php
+    use PHPExperts\DataTypeValidator\DataTypeValidator;
+    use PHPExperts\DataTypeValidator\IsAFuzzyDataType;
+    
+    /**
+     * @property int   $daysAlive
+     * @property float $age
+     * @property bool  $isHappy
+     */
+    class MyFuzzyDTO extends SimpleDTO
+    {
+        public function __construct(array $input)
+        {
+            parent::__construct($input, new DataTypeValidator(new IsAFuzzyDataType());
+        }
+    }
+
+    $person = new MyFuzzyDTO([
+        'daysAlive' => '5000',
+        'age'       => '13.689',
+        'isHappy'   => 1,
+    ]);
+
+    echo json_encode($person, JSON_PRETTY_PRINT);
+    /*
+    {
+        "daysAlive": "5000",
+        "age": "13.689",
+        "isHappy": 1
+    }
+    */
+```
+
+# Use cases
+PHPExperts\SimpleDTO\SimpleDTO
+ ✔ Properties are set via the constructor
+ ✔ Properties are accessed as public properties
+ ✔ Public, private and static protected properties will be ignored.
+ ✔ Accessing a nonexisting property throws an error
+ ✔ Each DTO is immutable
+ ✔ Setting any property returns an exception
+ ✔ Concrete properties can be used to set default values
+ ✔ Properties with the type carbon become carbon dates
+ ✔ Can easily output to array
+ ✔ Can easily be json encoded
+ ✔ Can easily be json decoded
+
+SimpleDTO Sad Paths
+ ✔ Cannot initialize with a nonexisting property
+ ✔ A DTO must have class property docblocks for each concrete property
+ ✔ Carbon date strings must be parsable dates
 
 ## Testing
 

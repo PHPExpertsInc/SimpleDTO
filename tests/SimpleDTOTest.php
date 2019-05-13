@@ -19,6 +19,7 @@ use Error;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
 
+/** @testdox PHPExperts\SimpleDTO\SimpleDTO */
 final class SimpleDTOTest extends TestCase
 {
     /** @var SimpleDTO */
@@ -28,6 +29,7 @@ final class SimpleDTOTest extends TestCase
     {
         $this->dto = new MyTestDTO([
             'name' => 'World',
+            'age'  => 4.51 * 1000000000,
         ]);
 
         parent::setUp();
@@ -37,18 +39,6 @@ final class SimpleDTOTest extends TestCase
     {
         self::assertInstanceOf(SimpleDTO::class, $this->dto);
         self::assertInstanceOf(MyTestDTO::class, $this->dto);
-    }
-
-    public function testCannotInitializeWithANonexistingProperty()
-    {
-        try {
-            new MyTestDTO([
-                'doesntExist' => 'foo',
-            ]);
-        }
-        catch (Error $e) {
-            $this->assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::doesntExist.', $e->getMessage());
-        }
     }
 
     public function testPropertiesAreAccessedAsPublicProperties()
@@ -88,10 +78,12 @@ final class SimpleDTOTest extends TestCase
 
     private function buildDateDTO(array $values = ['remember' => '2001-09-11 8:46 EST']): SimpleDTO
     {
+        /**
+         * @property string $name
+         * @property Carbon $remember
+         */
         return new class($values) extends SimpleDTO
         {
-            protected static $DATES = ['remember'];
-
             /** @var string */
             protected $name = '9/11';
 
@@ -100,7 +92,14 @@ final class SimpleDTOTest extends TestCase
         };
     }
 
-    public function testPropertiesInTheDatesStaticPropertyBecomeCarbonDates()
+    public function testConcretePropertiesCanBeUsedToSetDefaultValues()
+    {
+        $dateDTO = $this->buildDateDTO();
+
+        self::assertEquals('9/11', $dateDTO->name);
+    }
+
+    public function testPropertiesWithTheTypeCarbonBecomeCarbonDates()
     {
         $dateDTO = $this->buildDateDTO();
 
