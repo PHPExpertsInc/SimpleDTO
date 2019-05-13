@@ -115,22 +115,22 @@ Well, just instantiate the parent class like this:
 ```
 
 # Use cases
-PHPExperts\SimpleDTO\SimpleDTO
- ✔ Properties are set via the constructor
- ✔ Properties are accessed as public properties
- ✔ Public, private and static protected properties will be ignored.
- ✔ Accessing a nonexisting property throws an error
- ✔ Each DTO is immutable
- ✔ Setting any property returns an exception
- ✔ Concrete properties can be used to set default values
- ✔ Properties with the type carbon become carbon dates
- ✔ Can easily output to array
- ✔ Can easily be json encoded
+PHPExperts\SimpleDTO\SimpleDTO  
+ ✔ Properties are set via the constructor  
+ ✔ Properties are accessed as public properties  
+ ✔ Public, private and static protected properties will be ignored  
+ ✔ Accessing a nonexisting property throws an error  
+ ✔ Each DTO is immutable  
+ ✔ Setting any property returns an exception  
+ ✔ Concrete properties can be used to set default values  
+ ✔ Properties with the type carbon become carbon dates  
+ ✔ Can easily output to array  
+ ✔ Can easily be json encoded  
  ✔ Can easily be json decoded
 
-SimpleDTO Sad Paths
- ✔ Cannot initialize with a nonexisting property
- ✔ A DTO must have class property docblocks for each concrete property
+SimpleDTO Sad Paths  
+ ✔ Cannot initialize with a nonexisting property  
+ ✔ A DTO must have class property docblocks for each concrete property  
  ✔ Carbon date strings must be parsable dates
 
 ## Testing
