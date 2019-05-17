@@ -16,6 +16,7 @@ namespace PHPExperts\SimpleDTO\Tests;
 
 use Carbon\Carbon;
 use Error;
+use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
 
@@ -140,5 +141,32 @@ final class SimpleDTOTest extends TestCase
         self::assertEquals('September 11th, 2001', $dateDTO->remember->format('F jS, Y'));
         self::assertIsString($dateDTO->name);
         self::assertEquals('9/11', $dateDTO->name);
+    }
+
+    public function testNullablePropertiesAreAllowed()
+    {
+        try {
+            /**
+             * Every public and private property is ignored, as are static protected ones.
+             *
+             * @property string $firstName
+             * @property ?int $age
+             * @property null|int $year
+             * @property null|string $lastName
+             * @property ?float $height
+             */
+            new class(['firstName' => 'Cheyenne', 'lastName' => 3, 'height' => 'asdf']) extends SimpleDTO
+            {
+            };
+
+            $this->fail('A DTO was created with invalid nullable properties.');
+        } catch (InvalidDataTypeException $e) {
+            $expected = [
+                'lastName' => 'lastName is not a valid string',
+                'height'   => 'height is not a valid float',
+            ];
+
+            self::assertSame($expected, $e->getReasons());
+        }
     }
 }

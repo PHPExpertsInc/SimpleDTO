@@ -26,7 +26,11 @@ final class SimpleSadPathsTest extends TestCase
     public function testCannotInitializeWithANonexistingProperty()
     {
         try {
-            new MyTestDTO(['nonexistant' => true]);
+            new MyTestDTO([
+                'name'        => 'Sibi',
+                'age'         => 25.2,
+                'nonexistant' => true,
+            ]);
             $this->fail('A DTO with an undefined property was created.');
         }
         catch (Error $e) {
@@ -142,5 +146,27 @@ final class SimpleSadPathsTest extends TestCase
         ];
 
         self::assertSame($expected, $dto->toArray());
+    }
+
+    public function testPropertiesMustMatchTheirDataTypes()
+    {
+        try {
+            /**
+             * Every public and private property is ignored, as are static protected ones.
+             *
+             * @property int $age
+             */
+            new class([]) extends SimpleDTO
+            {
+            };
+
+            self::fail('It worked without a required data type.');
+        } catch (InvalidDataTypeException $e) {
+            $expected = [
+                'age' => 'age is not a valid int',
+            ];
+
+            self::assertSame($expected, $e->getReasons());
+        }
     }
 }

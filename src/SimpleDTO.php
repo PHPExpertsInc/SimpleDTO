@@ -48,7 +48,7 @@ abstract class SimpleDTO implements JsonSerializable
         $this->loadDynamicProperties($input);
     }
 
-    private function loadConcreteProperties()
+    private function loadConcreteProperties(): void
     {
         $properties = (new ReflectionClass($this))->getProperties(\ReflectionProperty::IS_PROTECTED);
         foreach ($properties as $property) {
@@ -65,7 +65,7 @@ abstract class SimpleDTO implements JsonSerializable
         }
     }
 
-    private function spliceInDefaultValues(array &$input)
+    private function spliceInDefaultValues(array &$input): void
     {
         $new = [];
         $inputDiff = array_diff_key($this->data, $input);
@@ -81,7 +81,7 @@ abstract class SimpleDTO implements JsonSerializable
         $input = $new;
     }
 
-    private function loadDynamicProperties(array $input)
+    private function loadDynamicProperties(array $input): void
     {
         $this->loadDynamicDTORules();
 
@@ -105,7 +105,7 @@ abstract class SimpleDTO implements JsonSerializable
         $this->data = $input;
     }
 
-    private function loadDynamicDTORules()
+    private function loadDynamicDTORules(): void
     {
         $properties = (new ReflectionClass($this))->getDocComment();
         if (!$properties) {
@@ -128,7 +128,7 @@ abstract class SimpleDTO implements JsonSerializable
         }
     }
 
-    private function processCarbonProperties(array &$input)
+    private function processCarbonProperties(array &$input): void
     {
         foreach ($this->dataTypeRules as $property => $type) {
             if (in_array($type, ['Carbon', Carbon::class, '\\' . Carbon::class])) {
@@ -143,7 +143,7 @@ abstract class SimpleDTO implements JsonSerializable
         }
     }
 
-    public function __isset(string $property)
+    public function __isset(string $property): bool
     {
         return array_key_exists($property, $this->data);
     }
@@ -158,7 +158,7 @@ abstract class SimpleDTO implements JsonSerializable
         return $this->data[$property];
     }
 
-    public function __set(string $property, $value)
+    public function __set(string $property, $value): void
     {
         throw new Error('SimpleDTOs are immutable. Create a new one to set a new value.');
     }
