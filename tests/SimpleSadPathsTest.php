@@ -34,7 +34,23 @@ final class SimpleSadPathsTest extends TestCase
             $this->fail('A DTO with an undefined property was created.');
         }
         catch (Error $e) {
-            $this->assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$nonexistant.', $e->getMessage());
+            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$nonexistant.', $e->getMessage());
+        }
+    }
+
+    public function testAccessingANonexistingPropertyThrowsAnError()
+    {
+        try {
+            $dto = new MyTestDTO([
+                'name'        => 'Sibi',
+                'age'         => 25.2,
+            ]);
+
+            $dto->doesntExist;
+            $this->fail('A non-existing property was accessed.');
+        }
+        catch (Error $e) {
+            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$doesntExist.', $e->getMessage());
         }
     }
 
@@ -120,32 +136,6 @@ final class SimpleSadPathsTest extends TestCase
 
             self::assertSame($expected, $e->getMessage());
         }
-    }
-
-    /** @testdox Public, private and static protected properties will be ignored.  */
-    public function testPublicStaticAndPrivatePropertiesWillBeIgnored()
-    {
-        /**
-         * Every public and private property is ignored, as are static protected ones.
-         *
-         * @property string $name
-         */
-        $dto = new class(['name' => 'Bharti Kothiyal']) extends SimpleDTO
-        {
-            protected $name;
-
-            private $age = 27;
-
-            public $country = 'India';
-
-            protected static $employer = 'N/A';
-        };
-
-        $expected = [
-            'name' => 'Bharti Kothiyal',
-        ];
-
-        self::assertSame($expected, $dto->toArray());
     }
 
     public function testPropertiesMustMatchTheirDataTypes()

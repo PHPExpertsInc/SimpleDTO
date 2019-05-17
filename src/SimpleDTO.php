@@ -152,7 +152,7 @@ abstract class SimpleDTO implements JsonSerializable
     {
         if (!$this->__isset($property)) {
             $self = static::class;
-            throw new Error("Undefined property: {$self}::$property.");
+            throw new Error("Undefined property: {$self}::\$$property.");
         }
 
         return $this->data[$property];

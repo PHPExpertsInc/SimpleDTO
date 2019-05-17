@@ -47,15 +47,30 @@ final class SimpleDTOTest extends TestCase
         $this->assertEquals('World', $this->dto->name);
     }
 
-    public function testAccessingANonexistingPropertyThrowsAnError()
+    /** @testdox Public, private and static protected properties will be ignored  */
+    public function testPublicStaticAndPrivatePropertiesWillBeIgnored()
     {
-        try {
-            $this->dto->doesntExist;
-            $this->fail('A non-existing property was accessed.');
-        }
-        catch (Error $e) {
-            $this->assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::doesntExist.', $e->getMessage());
-        }
+        /**
+         * Every public and private property is ignored, as are static protected ones.
+         *
+         * @property string $name
+         */
+        $dto = new class(['name' => 'Bharti Kothiyal']) extends SimpleDTO
+        {
+            protected $name;
+
+            private $age = 27;
+
+            public $country = 'India';
+
+            protected static $employer = 'N/A';
+        };
+
+        $expected = [
+            'name' => 'Bharti Kothiyal',
+        ];
+
+        self::assertSame($expected, $dto->toArray());
     }
 
     public function test_each_DTO_is_immutable()
