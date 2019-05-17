@@ -16,6 +16,7 @@ namespace PHPExperts\SimpleDTO\Tests;
 
 use Carbon\Carbon;
 use Error;
+use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
 
@@ -46,15 +47,30 @@ final class SimpleDTOTest extends TestCase
         $this->assertEquals('World', $this->dto->name);
     }
 
-    public function testAccessingANonexistingPropertyThrowsAnError()
+    /** @testdox Public, private and static protected properties will be ignored  */
+    public function testPublicStaticAndPrivatePropertiesWillBeIgnored()
     {
-        try {
-            $this->dto->doesntExist;
-            $this->fail('A non-existing property was accessed.');
-        }
-        catch (Error $e) {
-            $this->assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::doesntExist.', $e->getMessage());
-        }
+        /**
+         * Every public and private property is ignored, as are static protected ones.
+         *
+         * @property string $name
+         */
+        $dto = new class(['name' => 'Bharti Kothiyal']) extends SimpleDTO
+        {
+            protected $name;
+
+            private $age = 27;
+
+            public $country = 'India';
+
+            protected static $employer = 'N/A';
+        };
+
+        $expected = [
+            'name' => 'Bharti Kothiyal',
+        ];
+
+        self::assertSame($expected, $dto->toArray());
     }
 
     public function test_each_DTO_is_immutable()
@@ -140,5 +156,32 @@ final class SimpleDTOTest extends TestCase
         self::assertEquals('September 11th, 2001', $dateDTO->remember->format('F jS, Y'));
         self::assertIsString($dateDTO->name);
         self::assertEquals('9/11', $dateDTO->name);
+    }
+
+    public function testNullablePropertiesAreAllowed()
+    {
+        try {
+            /**
+             * Every public and private property is ignored, as are static protected ones.
+             *
+             * @property string $firstName
+             * @property ?int $age
+             * @property null|int $year
+             * @property null|string $lastName
+             * @property ?float $height
+             */
+            new class(['firstName' => 'Cheyenne', 'lastName' => 3, 'height' => 'asdf']) extends SimpleDTO
+            {
+            };
+
+            $this->fail('A DTO was created with invalid nullable properties.');
+        } catch (InvalidDataTypeException $e) {
+            $expected = [
+                'lastName' => 'lastName is not a valid string',
+                'height'   => 'height is not a valid float',
+            ];
+
+            self::assertSame($expected, $e->getReasons());
+        }
     }
 }

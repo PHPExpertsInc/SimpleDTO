@@ -26,11 +26,31 @@ final class SimpleSadPathsTest extends TestCase
     public function testCannotInitializeWithANonexistingProperty()
     {
         try {
-            new MyTestDTO(['nonexistant' => true]);
+            new MyTestDTO([
+                'name'        => 'Sibi',
+                'age'         => 25.2,
+                'nonexistant' => true,
+            ]);
             $this->fail('A DTO with an undefined property was created.');
         }
         catch (Error $e) {
-            $this->assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$nonexistant.', $e->getMessage());
+            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$nonexistant.', $e->getMessage());
+        }
+    }
+
+    public function testAccessingANonexistingPropertyThrowsAnError()
+    {
+        try {
+            $dto = new MyTestDTO([
+                'name'        => 'Sibi',
+                'age'         => 25.2,
+            ]);
+
+            $dto->doesntExist;
+            $this->fail('A non-existing property was accessed.');
+        }
+        catch (Error $e) {
+            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$doesntExist.', $e->getMessage());
         }
     }
 
@@ -118,29 +138,25 @@ final class SimpleSadPathsTest extends TestCase
         }
     }
 
-    /** @testdox Public, private and static protected properties will be ignored.  */
-    public function testPublicStaticAndPrivatePropertiesWillBeIgnored()
+    public function testPropertiesMustMatchTheirDataTypes()
     {
-        /**
-         * Every public and private property is ignored, as are static protected ones.
-         *
-         * @property string $name
-         */
-        $dto = new class(['name' => 'Bharti Kothiyal']) extends SimpleDTO
-        {
-            protected $name;
+        try {
+            /**
+             * Every public and private property is ignored, as are static protected ones.
+             *
+             * @property int $age
+             */
+            new class([]) extends SimpleDTO
+            {
+            };
 
-            private $age = 27;
+            self::fail('It worked without a required data type.');
+        } catch (InvalidDataTypeException $e) {
+            $expected = [
+                'age' => 'age is not a valid int',
+            ];
 
-            public $country = 'India';
-
-            protected static $employer = 'N/A';
-        };
-
-        $expected = [
-            'name' => 'Bharti Kothiyal',
-        ];
-
-        self::assertSame($expected, $dto->toArray());
+            self::assertSame($expected, $e->getReasons());
+        }
     }
 }
