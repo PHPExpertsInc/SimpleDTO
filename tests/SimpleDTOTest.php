@@ -211,4 +211,64 @@ final class SimpleDTOTest extends TestCase
 
         self::assertSame($expected, $dto->toArray());
     }
+
+    private function getSerializedDTO(): string
+    {
+        $expectedJSON = <<<'JSON'
+{
+    "isA": "PHPExperts\\DataTypeValidator\\IsAFuzzyDataType",
+    "options": [
+        101
+    ],
+    "dataRules": {
+        "name": "?string",
+        "age": "?float",
+        "year": "?int"
+    },
+    "data": {
+        "year": 2019,
+        "name": "World",
+        "age": "4510000000"
+    }
+}
+JSON;
+
+        return $expectedJSON;
+    }
+
+    public function testCanBeSerialized()
+    {
+        $dto = new MyTestDTO([
+            'name' => 'World',
+            'age'  => (string) (4.51 * 1000000000),
+        ], [SimpleDTO::PERMISSIVE]);
+
+        $expectedJSON = $this->getSerializedDTO();
+        $serializedJson = sprintf(
+            "%s$expectedJSON}",
+            'C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":297:{'
+        );
+
+        self::assertSame($expectedJSON, $dto->serialize());
+        self::assertSame($serializedJson, serialize($dto));
+
+        return $dto;
+    }
+
+    /**
+     * @param SimpleDTO $origDTO
+     * @depends testCanBeSerialized
+     */
+    public function testCanBeUnserialized(SimpleDTO $origDTO)
+    {
+        $serializedJSON = sprintf(
+            "%s%s}",
+            'C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":297:{',
+            $this->getSerializedDTO()
+        );
+
+        $awokenDTO = unserialize($serializedJSON);
+
+        self::assertEquals($origDTO, $awokenDTO);
+    }
 }

@@ -17,7 +17,6 @@ namespace PHPExperts\SimpleDTO\Tests;
 use Error;
 use LogicException;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
-use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
 
@@ -157,6 +156,41 @@ final class SimpleSadPathsTest extends TestCase
                 'age' => 'age is not a valid int',
             ];
 
+            self::assertSame($expected, $e->getReasons());
+        }
+    }
+
+    /** @testdox Will not unserialize DTOs with invalid data */
+    public function testWillNotUnserializeDTOsWithInvalidData()
+    {
+        $serializedJSON = <<<'JSON'
+C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":291:{{
+    "isA": "PHPExperts\\DataTypeValidator\\IsAFuzzyDataType",
+    "options": [
+        101
+    ],
+    "dataRules": {
+        "name": "?string",
+        "age": "?floam",
+        "year": "?int"
+    },
+    "data": {
+        "year": 2019,
+        "name": 1,
+        "age": "4510000000"
+    }
+}}
+JSON;
+        $expected = [
+            'name' => 'name is not a valid string',
+            'age'  => 'age is not a valid floam',
+        ];
+
+        try {
+            unserialize($serializedJSON);
+            $this->fail('Unserialized a DTO with invalid data.');
+        } catch (InvalidDataTypeException $e) {
+            self::assertSame('There were 2 validation errors.', $e->getMessage());
             self::assertSame($expected, $e->getReasons());
         }
     }

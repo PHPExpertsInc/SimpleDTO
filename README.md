@@ -169,6 +169,8 @@ PHPExperts\SimpleDTO\SimpleDTO
  ✔ Can easily be json decoded  
  ✔ Nullable properties are allowed  
  ✔ Every property is nullable with permissive mode  
+ ✔ Can be serialized  
+ ✔ Can be unserialized  
 
 PHPExperts\SimpleDTO\NestedDTO
  ✔ Will construct snested DTOs  
@@ -183,7 +185,8 @@ SimpleDTO Sad Paths
  ✔ Accessing a nonexisting property throws an error  
  ✔ A DTO must have class property docblocks for each concrete property  
  ✔ Carbon date strings must be parsable dates  
- ✔ Properties must match their data types
+ ✔ Properties must match their data types  
+ ✔ Will not unserialize DTOs with invalid data  
 
 ## Testing
 
