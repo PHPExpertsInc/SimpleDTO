@@ -172,8 +172,8 @@ PHPExperts\SimpleDTO\SimpleDTO
  ✔ Can be serialized  
  ✔ Can be unserialized  
 
-PHPExperts\SimpleDTO\NestedDTO
- ✔ Will construct snested DTOs  
+PHPExperts\SimpleDTO\NestedDTO  
+ ✔ Will construct nested DTOs  
  ✔ Will convert arrays into the appropriate Nested DTOs  
  ✔ Will convert stdClasses into the appropriate Nested DTOs  
  ✔ Nested DTOs use Loose typing  
