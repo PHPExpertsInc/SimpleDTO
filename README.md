@@ -179,6 +179,9 @@ PHPExperts\SimpleDTO\NestedDTO
  ✔ Nested DTOs use Loose typing  
  ✔ All registered Nested DTOs are required  
  ✔ Optional, unregistered, Nested DTOs are handled gracefully  
+ ✔ Can be serialized  
+ ✔ Can be unserialized  
+
 
 SimpleDTO Sad Paths  
  ✔ Cannot initialize with a nonexisting property  
