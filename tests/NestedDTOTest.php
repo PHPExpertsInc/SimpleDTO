@@ -14,8 +14,6 @@
 
 namespace PHPExperts\SimpleDTO\Tests;
 
-use Carbon\Carbon;
-use Error;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
@@ -24,11 +22,7 @@ use PHPUnit\Framework\TestCase;
 /** @testdox PHPExperts\SimpleDTO\NestedDTO */
 final class NestedDTOTest extends TestCase
 {
-    /** @var SimpleDTO */
-    private $dto;
-
-    /** @testdox Will construct snested DTOs */
-    function testWillBuildOutNestedDTOs()
+    private function buildNestedDTO(): NestedDTO
     {
         $myDTO = new MyTestDTO([
             'name' => 'PHP Experts, Inc.',
@@ -39,11 +33,18 @@ final class NestedDTOTest extends TestCase
         /**
          * @property MyTestDTO $myDTO
          */
-        $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO
-        {
-        };
+        $nestedDTO = new MyNestedTestDTO(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]);
+
+        return $nestedDTO;
+    }
+
+    /** @testdox Will construct nested DTOs */
+    public function testWillBuildOutNestedDTOs()
+    {
+        $nestedDTO = $this->buildNestedDTO();
 
         $expected = [
+            'name'  => 'Nested',
             'myDTO' => [
                 'name' => 'PHP Experts, Inc.',
                 'age'  => 7.01,
@@ -55,7 +56,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Will convert arrays into the appropriate Nested DTOs */
-    function testWillConvertArraysIntoTheAppropriateNestedDTOs()
+    public function testWillConvertArraysIntoTheAppropriateNestedDTOs()
     {
         try {
             $myDTO = [
@@ -86,7 +87,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Will convert stdClasses into the appropriate Nested DTOs */
-    function testWillConvertStdClassesIntoTheAppropriateNestedDTOs()
+    public function testWillConvertStdClassesIntoTheAppropriateNestedDTOs()
     {
         try {
             $myDTO = (object) [
@@ -117,7 +118,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Nested DTOs use Loose typing */
-    function testNestedDTOsUseLooseTyping()
+    public function testNestedDTOsUseLooseTyping()
     {
         try {
             $myDTOInfo = [
@@ -212,5 +213,67 @@ final class NestedDTOTest extends TestCase
         self::assertInstanceOf(MyTestDTO::class, $dto->myDTO);
         self::assertInstanceOf('\stdClass', $dto->extra);
         self::assertEquals($expectedObject, $dto->extra);
+    }
+
+    private function getSerializedDTO(): string
+    {
+        $expectedJSON = <<<'JSON'
+{
+    "isA": "PHPExperts\\DataTypeValidator\\IsAFuzzyDataType",
+    "options": [
+        101
+    ],
+    "dataRules": {
+        "name": "?string",
+        "myDTO": "?MyTestDTO"
+    },
+    "data": {
+        "name": "Nested",
+        "myDTO": {
+            "name": "PHP Experts, Inc.",
+            "age": 7.01,
+            "year": 2019
+        }
+    },
+    "DTOs": {
+        "myDTO": "PHPExperts\\SimpleDTO\\Tests\\MyTestDTO"
+    }
+}
+JSON;
+
+        return $expectedJSON;
+    }
+
+    public function testCanBeSerialized()
+    {
+        $nestedDTO = $this->buildNestedDTO();
+        $expectedJSON = $this->getSerializedDTO();
+        $serializedJson = sprintf(
+            "%s$expectedJSON}",
+            'C:42:"PHPExperts\SimpleDTO\Tests\MyNestedTestDTO":430:{'
+        );
+
+        self::assertSame($expectedJSON, $nestedDTO->serialize());
+
+        self::assertSame($serializedJson, serialize($nestedDTO));
+
+        return $nestedDTO;
+    }
+
+    /**
+     * @param SimpleDTO $origDTO
+     * @depends testCanBeSerialized
+     */
+    public function testCanBeUnserialized(SimpleDTO $origDTO)
+    {
+        $serializedJSON = sprintf(
+            "%s%s}",
+            'C:42:"PHPExperts\SimpleDTO\Tests\MyNestedTestDTO":430:{',
+            $this->getSerializedDTO()
+        );
+
+        $awokenDTO = unserialize($serializedJSON);
+
+        self::assertEquals($origDTO, $awokenDTO);
     }
 }

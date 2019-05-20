@@ -19,17 +19,46 @@ use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 
 abstract class NestedDTO extends SimpleDTO
 {
+    /** @var array */
+    private $DTOs;
+
     public function __construct(array $input, array $DTOs, array $options = null, DataTypeValidator $validator = null)
     {
         if (!empty(array_diff_key($DTOs, $input))) {
             throw new InvalidDataTypeException('Missing critical DTO input(s).', array_diff_key($DTOs, $input));
         }
 
-        foreach ($DTOs as $property => $dtoClass) {
+        $this->DTOs = $DTOs;
+        $input = $this->convertPropertiesToDTOs($input, $options);
+
+        parent::__construct($input, $options ?? [SimpleDTO::PERMISSIVE], $validator);
+    }
+
+    private function convertPropertiesToDTOs(array $input, ?array $options): array
+    {
+        foreach ($this->DTOs as $property => $dtoClass) {
             $value = $this->convertValueToArray($input[$property]) ?? $input[$property];
             $input[$property] = new $dtoClass($value, $options ?? [SimpleDTO::PERMISSIVE]);
         }
 
-        parent::__construct($input, $options ?? [SimpleDTO::PERMISSIVE], $validator);
+        return $input;
+    }
+
+    public function serialize()
+    {
+        $output = json_decode(parent::serialize(), true);
+        $output['DTOs'] = $this->DTOs;
+
+        return json_encode($output, JSON_PRETTY_PRINT);
+    }
+
+    public function unserialize($serialized): void
+    {
+        $decoded = json_decode($serialized, true);
+        $this->DTOs = $decoded['DTOs'];
+        $decoded['data'] = $this->convertPropertiesToDTOs($decoded['data'], $decoded['options']);
+
+        $validator = new DataTypeValidator(new $decoded['isA']);
+        $this->__construct($decoded['data'], $decoded['DTOs'], $decoded['options'], $validator);
     }
 }

@@ -22,8 +22,9 @@ use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\DataTypeValidator\IsAFuzzyDataType;
 use PHPExperts\DataTypeValidator\IsAStrictDataType;
 use ReflectionClass;
+use Serializable;
 
-abstract class SimpleDTO implements JsonSerializable
+abstract class SimpleDTO implements JsonSerializable, Serializable
 {
     public const PERMISSIVE = 101;
 
@@ -218,13 +219,27 @@ abstract class SimpleDTO implements JsonSerializable
         return $this->toArray();
     }
 
-//    public function serialize()
-//    {
-//        return serialize($this->toArray());
-//    }
-//
-//    public function unserialize($serialized)
-//    {
-//        // TODO: Implement unserialize() method.
-//    }
+    public function serialize()
+    {
+        $output = [
+            'isA'       => $this->validator->getValidationType(),
+            'options'   => $this->options,
+            'dataRules' => $this->dataTypeRules,
+            'data'      => $this->toArray(),
+        ];
+
+        return json_encode($output, JSON_PRETTY_PRINT);
+    }
+
+    public function unserialize($serialized): void
+    {
+        $input = json_decode($serialized, true);
+
+        $this->validator = new DataTypeValidator(new $input['isA']());
+        $this->options = $input['options'];
+        $this->validator->validate($input['data'], $input['dataRules']);
+        $this->dataTypeRules = $input['dataRules'];
+        $this->loadConcreteProperties();
+        $this->data = $input['data'];
+    }
 }
