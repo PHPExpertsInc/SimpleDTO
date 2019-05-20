@@ -22,11 +22,12 @@ abstract class NestedDTO extends SimpleDTO
     public function __construct(array $input, array $DTOs, array $options = null, DataTypeValidator $validator = null)
     {
         if (!empty(array_diff_key($DTOs, $input))) {
-            throw new InvalidDataTypeException('Missing critical DTO inputs.', array_diff_key($DTOs, array_keys($input)));
+            throw new InvalidDataTypeException('Missing critical DTO input(s).', array_diff_key($DTOs, $input));
         }
 
         foreach ($DTOs as $property => $dtoClass) {
-            $input[$property] = new $dtoClass((array) $input[$property], $options ?? [SimpleDTO::PERMISSIVE]);
+            $value = $this->convertValueToArray($input[$property]) ?? $input[$property];
+            $input[$property] = new $dtoClass($value, $options ?? [SimpleDTO::PERMISSIVE]);
         }
 
         parent::__construct($input, $options ?? [SimpleDTO::PERMISSIVE], $validator);

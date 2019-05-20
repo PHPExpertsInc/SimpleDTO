@@ -17,6 +17,7 @@ namespace PHPExperts\SimpleDTO\Tests;
 use Error;
 use LogicException;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
+use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
 

@@ -184,4 +184,31 @@ final class SimpleDTOTest extends TestCase
             self::assertSame($expected, $e->getReasons());
         }
     }
+
+    /** @test Every property is nullable with Permissive Move */
+    public function testEveryPropertyIsNullableWithPermissiveMode()
+    {
+        $info = ['firstName' => 'Cheyenne', 'lastName' => null, 'age' => null, 'height' => null];
+
+        /**
+         * Every public and private property is ignored, as are static protected ones.
+         *
+         * @property string $firstName
+         * @property string $lastName
+         * @property int $age
+         * @property float $height
+         */
+        $dto = new class($info, [SimpleDTO::PERMISSIVE]) extends SimpleDTO
+        {
+        };
+
+        $expected = [
+            'firstName' => 'Cheyenne',
+            'lastName'  => null,
+            'age'       => null,
+            'height'    => null,
+        ];
+
+        self::assertSame($expected, $dto->toArray());
+    }
 }

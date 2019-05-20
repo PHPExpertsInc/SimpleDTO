@@ -180,25 +180,31 @@ abstract class SimpleDTO implements JsonSerializable
         throw new Error('SimpleDTOs are immutable. Create a new one to set a new value.');
     }
 
-    public function toArray(): array
+    protected function convertValueToArray($value): ?array
     {
-        foreach ($this->data as &$value) {
-            if (is_object($value))
+        if (is_object($value))
+        {
+            if (is_callable([$value, 'toArray']) && !($value instanceof Carbon))
             {
-                if (is_callable([$value, 'toArray']))
-                {
-                    $toArray = $value->toArray();
-                    $value = $toArray;
-                    $toArray = null;
+                return $value->toArray();
+            }
 
-                    continue;
-                }
-
-                $value = (array) $value;
+            if ($value instanceof \stdClass) {
+                return (array) $value;
             }
         }
 
-        return $this->data;
+        return null;
+    }
+
+    public function toArray(): array
+    {
+        $output = [];
+        foreach ($this->data as $key => $value) {
+            $output[$key] = $this->convertValueToArray($value) ?? $value;
+        }
+
+        return $output;
     }
 
     public function jsonSerialize(): array
