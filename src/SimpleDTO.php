@@ -19,11 +19,17 @@ use Error;
 use JsonSerializable;
 use PHPExperts\DataTypeValidator\DataTypeValidator;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
+use PHPExperts\DataTypeValidator\IsAFuzzyDataType;
 use PHPExperts\DataTypeValidator\IsAStrictDataType;
 use ReflectionClass;
 
 abstract class SimpleDTO implements JsonSerializable
 {
+    public const PERMISSIVE = 101;
+
+    /** @var array */
+    private $options;
+
     /** @var DataTypeValidator */
     private $validator;
 
@@ -33,10 +39,13 @@ abstract class SimpleDTO implements JsonSerializable
     /** @var array */
     private $data = [];
 
-    public function __construct(array $input, DataTypeValidator $validator = null)
+    public function __construct(array $input, array $options = [], DataTypeValidator $validator = null)
     {
+        $this->options = $options;
+
         if (!$validator) {
-            $validator = new DataTypeValidator(new IsAStrictDataType());
+            $isA = in_array(self::PERMISSIVE, $this->options) ? new IsAFuzzyDataType() : new IsAStrictDataType();
+            $validator = new DataTypeValidator($isA);
         }
         $this->validator = $validator;
 
@@ -96,7 +105,7 @@ abstract class SimpleDTO implements JsonSerializable
         $this->validator->validate($input, $this->dataTypeRules);
 
         $inputDiff = array_diff_key($input, $this->dataTypeRules);
-        if (!empty($inputDiff)) {
+        if (!in_array(self::PERMISSIVE, $this->options) && !empty($inputDiff)) {
             $self = static::class;
             $property = key($inputDiff);
             throw new Error("Undefined property: {$self}::\${$property}.");
@@ -119,6 +128,8 @@ abstract class SimpleDTO implements JsonSerializable
         }
 
         foreach ($annotations[2] as $annotation) {
+            // Strip out extraneous white space.
+            $annotation = preg_replace('/ {2,}/', ' ', $annotation);
             $prop = explode(' ', $annotation);
             if (empty($prop[0]) || empty($prop[1])) {
                 throw new InvalidDataTypeException('A class data type docblock is malformed.');
@@ -130,7 +141,13 @@ abstract class SimpleDTO implements JsonSerializable
 
     private function processCarbonProperties(array &$input): void
     {
-        foreach ($this->dataTypeRules as $property => $type) {
+        $isPermissive = in_array(self::PERMISSIVE, $this->options);
+        foreach ($this->dataTypeRules as $property => &$type) {
+            // Make every property nullable if in PERMISSIVE mode.
+            if ($isPermissive) {
+                $type = $type[0] !== '?' && strpos($type, 'null|') !== 0 ? "?$type" : $type;
+            }
+
             if (in_array($type, ['Carbon', Carbon::class, '\\' . Carbon::class])) {
                 if (is_string($input[$property])) {
                     try {
@@ -165,6 +182,22 @@ abstract class SimpleDTO implements JsonSerializable
 
     public function toArray(): array
     {
+        foreach ($this->data as &$value) {
+            if (is_object($value))
+            {
+                if (is_callable([$value, 'toArray']))
+                {
+                    $toArray = $value->toArray();
+                    $value = $toArray;
+                    $toArray = null;
+
+                    continue;
+                }
+
+                $value = (array) $value;
+            }
+        }
+
         return $this->data;
     }
 
