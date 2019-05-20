@@ -127,9 +127,10 @@ abstract class SimpleDTO implements JsonSerializable
             throw new \LogicException('No DTO class property docblocks have been added.');
         }
 
+        /** @var string $annotation */
         foreach ($annotations[2] as $annotation) {
             // Strip out extraneous white space.
-            $annotation = preg_replace('/ {2,}/', ' ', $annotation);
+            $annotation = preg_replace('/ {2,}/', ' ', $annotation) ?? '';
             $prop = explode(' ', $annotation);
             if (empty($prop[0]) || empty($prop[1])) {
                 throw new InvalidDataTypeException('A class data type docblock is malformed.');
@@ -141,14 +142,11 @@ abstract class SimpleDTO implements JsonSerializable
 
     private function processCarbonProperties(array &$input): void
     {
-        $isPermissive = in_array(self::PERMISSIVE, $this->options);
-        foreach ($this->dataTypeRules as $property => &$type) {
+        foreach ($this->dataTypeRules as $property => &$expectedType) {
             // Make every property nullable if in PERMISSIVE mode.
-            if ($isPermissive) {
-                $type = $type[0] !== '?' && strpos($type, 'null|') !== 0 ? "?$type" : $type;
-            }
+            $this->handlePermissiveMode($expectedType);
 
-            if (in_array($type, ['Carbon', Carbon::class, '\\' . Carbon::class])) {
+            if (in_array($expectedType, ['Carbon', Carbon::class, '\\' . Carbon::class])) {
                 if (is_string($input[$property])) {
                     try {
                         $input[$property] = Carbon::parse($input[$property]);
@@ -157,6 +155,14 @@ abstract class SimpleDTO implements JsonSerializable
                     }
                 }
             }
+        }
+    }
+
+    private function handlePermissiveMode(&$expectedType)
+    {
+        $isPermissive = in_array(self::PERMISSIVE, $this->options);
+        if ($isPermissive) {
+            $expectedType = $expectedType[0] !== '?' && strpos($expectedType, 'null|') !== 0 ? "?$expectedType" : $expectedType;
         }
     }
 
@@ -184,8 +190,8 @@ abstract class SimpleDTO implements JsonSerializable
     {
         if (is_object($value))
         {
-            if (is_callable([$value, 'toArray']) && !($value instanceof Carbon))
-            {
+            // Hack to make phpstan work, because it apparently doesn't understand `is_callable()`.
+            if (method_exists($value, 'toArray') && !($value instanceof Carbon)) {
                 return $value->toArray();
             }
 
