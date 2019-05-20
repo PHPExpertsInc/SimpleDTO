@@ -114,6 +114,47 @@ Well, just instantiate the parent class like this:
     */
 ```
 
+## NestedDTOs
+
+You can nest DTOs inside of each other. 
+
+```php
+    $myDTO = new MyTestDTO([
+        'name' => 'PHP Experts, Inc.',
+        'age'  => 7.01,
+        'year' => 2019,
+    ]);
+
+    /**
+     * @property MyTestDTO $myDTO
+     */
+    $dto = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO
+    {
+    };
+    
+    /*
+    PHPExperts\SimpleDTO\NestedDTO@anonymous {
+      -dataTypeRules: array:1 [
+        "myDTO" => "?MyTestDTO"
+      ]
+      -data: array:1 [
+        "myDTO" => PHPExperts\SimpleDTO\Tests\MyTestDTO {#355
+          -dataTypeRules: array:3 [
+            "name" => "?string"
+            "age" => "?float"
+            "year" => "?int"
+          ]
+          -data: array:3 [
+            "name" => "PHP Experts, Inc."
+            "age" => 7.01
+            "year" => 2019
+          ]
+        }
+      ]
+    }
+    */
+```
+
 # Use cases
 PHPExperts\SimpleDTO\SimpleDTO  
  ✔ Properties are set via the constructor  
@@ -126,7 +167,16 @@ PHPExperts\SimpleDTO\SimpleDTO
  ✔ Can easily output to array  
  ✔ Can easily be json encoded  
  ✔ Can easily be json decoded  
- ✔ Nullable properties are allowed
+ ✔ Nullable properties are allowed  
+ ✔ Every property is nullable with permissive mode  
+
+PHPExperts\SimpleDTO\NestedDTO
+ ✔ Will construct snested DTOs  
+ ✔ Will convert arrays into the appropriate Nested DTOs  
+ ✔ Will convert stdClasses into the appropriate Nested DTOs  
+ ✔ Nested DTOs use Loose typing  
+ ✔ All registered Nested DTOs are required  
+ ✔ Optional, unregistered, Nested DTOs are handled gracefully  
 
 SimpleDTO Sad Paths  
  ✔ Cannot initialize with a nonexisting property  
