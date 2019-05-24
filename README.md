@@ -182,6 +182,10 @@ PHPExperts\SimpleDTO\NestedDTO
  ✔ Can be serialized  
  ✔ Can be unserialized  
 
+PHPExperts\SimpleDTO\WriteOnceTrait  
+ ✔ Can accept null values  
+ ✔ Can write each null value once  
+ ✔ Write-Once values must validate  
 
 SimpleDTO Sad Paths  
  ✔ Cannot initialize with a nonexisting property  
@@ -194,7 +198,7 @@ SimpleDTO Sad Paths
 ## Testing
 
 ```bash
-phpunit
+phpunit --testdox
 ```
 
 # Contributors
