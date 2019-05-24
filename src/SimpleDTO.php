@@ -27,6 +27,7 @@ use Serializable;
 abstract class SimpleDTO implements JsonSerializable, Serializable
 {
     public const PERMISSIVE = 101;
+    public const ALLOW_NULL = 102;
 
     /** @var array */
     private $options;
@@ -49,6 +50,11 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
             $validator = new DataTypeValidator($isA);
         }
         $this->validator = $validator;
+
+        // WriteOnce trait needs to allow nullables.
+        if (in_array(WriteOnce::class, class_uses($this))) {
+            $this->options[] = self::ALLOW_NULL;
+        }
 
         $this->loadConcreteProperties();
 
@@ -115,6 +121,11 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->data = $input;
     }
 
+    /**
+     * Loads the dynamic properties of the DTO and builds a data type rule set from them.
+     *
+     * @throws \ReflectionException
+     */
     private function loadDynamicDTORules(): void
     {
         $properties = (new ReflectionClass($this))->getDocComment();
@@ -161,7 +172,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
 
     private function handlePermissiveMode(&$expectedType)
     {
-        $isPermissive = in_array(self::PERMISSIVE, $this->options);
+        $isPermissive = in_array(self::PERMISSIVE, $this->options) || in_array(self::ALLOW_NULL, $this->options);
         if ($isPermissive) {
             $expectedType = $expectedType[0] !== '?' && strpos($expectedType, 'null|') !== 0 ? "?$expectedType" : $expectedType;
         }
@@ -185,6 +196,17 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
     public function __set(string $property, $value): void
     {
         throw new Error('SimpleDTOs are immutable. Create a new one to set a new value.');
+    }
+
+    /**
+     * @internal DO NOT USE THIS METHOD.
+     * @param string $property
+     * @param mixed $value
+     */
+    protected function overwrite($property, $value): void
+    {
+        $this->data[$property] = $value;
+        $this->validator->validate($this->data, $this->dataTypeRules);
     }
 
     protected function convertValueToArray($value): ?array
