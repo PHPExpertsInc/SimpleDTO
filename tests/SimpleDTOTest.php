@@ -271,4 +271,47 @@ JSON;
 
         self::assertEquals($origDTO, $awokenDTO);
     }
+
+    public function testExtraValidationCanBeAdded()
+    {
+        try {
+            /**
+             * @property string $name
+             * @property ?float $age
+             */
+            new class(['name' => 'Theodore R. Smith']) extends SimpleDTO
+            {
+                protected function extraValidation(array $input)
+                {
+                    $ifThisThenThat = [$this, 'ifThisThenThat'];
+                    $ifThisThenThat($input, 'name', 'Theodore R. Smith', 'age');
+                }
+            };
+            $this->fail('A DTO with invalid extra validation was created.');
+        } catch (InvalidDataTypeException $e) {
+            self::assertStringContainsString('$age must be set when self::$name is ', $e->getMessage());
+        }
+
+        /**
+         * @property string $name
+         * @property ?float $age
+         */
+        $dto = new class(['name' => 'Theodore R. Smith', 'age' => 37.426]) extends SimpleDTO
+        {
+            protected function extraValidation(array $input)
+            {
+                $ifThisThenThat = [$this, 'ifThisThenThat'];
+                $ifThisThenThat($input, 'name', 'Theodore R. Smith', 'age');
+            }
+        };
+
+        $expected = [
+            'name' => 'Theodore R. Smith',
+            'age'  => 37.426,
+        ];
+
+        self::assertInstanceOf(SimpleDTO::class, $dto);
+        self::assertSame(37.426, $dto->age);
+        self::assertSame($expected, $dto->toArray());
+    }
 }

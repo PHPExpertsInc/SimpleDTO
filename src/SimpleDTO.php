@@ -64,13 +64,13 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->loadDynamicProperties($input);
     }
 
-    protected function fetchIfThenThat(): callable
+    protected function ifThisThenThat(array $input, $ifThis, $specialValue, $thenThat)
     {
-        return function($ifThis, $specialValue, $thenThat) use ($values) {
-            if ($values[$ifThis] ?? '' === $specialValue && empty($values[$thenThat])) {
-                throw new InvalidDataTypeException("$self::\$$thenThat must be set when self::\$$ifThis is '$specialValue'.");
-            }
-        };
+        if (($input[$ifThis] ?? '') === $specialValue && empty($input[$thenThat])) {
+            $self = get_class($this);
+
+            throw new InvalidDataTypeException("$self::\$$thenThat must be set when self::\$$ifThis is '$specialValue'.");
+        }
     }
 
     private function loadConcreteProperties(): void
