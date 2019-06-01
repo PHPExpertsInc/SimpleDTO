@@ -64,6 +64,15 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->loadDynamicProperties($input);
     }
 
+    protected function ifThisThenThat(array $input, $ifThis, $specialValue, $thenThat)
+    {
+        if (($input[$ifThis] ?? '') === $specialValue && empty($input[$thenThat])) {
+            $self = get_class($this);
+
+            throw new InvalidDataTypeException("$self::\$$thenThat must be set when self::\$$ifThis is '$specialValue'.");
+        }
+    }
+
     private function loadConcreteProperties(): void
     {
         $properties = (new ReflectionClass($this))->getProperties(\ReflectionProperty::IS_PROTECTED);
@@ -109,7 +118,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         // Handle any string Carbon objects.
         $this->processCarbonProperties($input);
 
-        $this->validator->validate($input, $this->dataTypeRules);
+        $this->validateInputs($input);
 
         $inputDiff = array_diff_key($input, $this->dataTypeRules);
         if (!in_array(self::PERMISSIVE, $this->options) && !empty($inputDiff)) {
@@ -119,6 +128,21 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         }
 
         $this->data = $input;
+    }
+
+    /**
+     * This is just a placeholder so that child classes can override it.
+     *
+     * @param array $input
+     */
+    protected function extraValidation(array $input)
+    {
+    }
+
+    private function validateInputs(array $input)
+    {
+        $this->validator->validate($input, $this->dataTypeRules);
+        $this->extraValidation($input);
     }
 
     /**

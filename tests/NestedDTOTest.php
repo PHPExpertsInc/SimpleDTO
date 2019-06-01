@@ -7,7 +7,7 @@
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *  GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *  https://www.phpexperts.pro/
- *  https://github.com/phpexpertsinc/Zuora-API-Client
+ *  https://github.com/phpexpertsinc/SimpleDTO
  *
  * This file is licensed under the MIT License.
  */
@@ -30,16 +30,21 @@ final class NestedDTOTest extends TestCase
             'year' => 2019,
         ]);
 
-        /**
-         * @property MyTestDTO $myDTO
-         */
-        $nestedDTO = new MyNestedTestDTO(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]);
+        try {
+            /**
+             * @property MyTestDTO $myDTO
+             */
+            $nestedDTO = new MyNestedTestDTO(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]);
+        }
+        catch (InvalidDataTypeException $e) {
+            dd([$e->getReasons(), $e->getTraceAsString()]);
+        }
 
         return $nestedDTO;
     }
 
     /** @testdox Will construct nested DTOs */
-    public function testWillBuildOutNestedDTOs()
+    public function testWillConstructNestedDTOs()
     {
         $nestedDTO = $this->buildNestedDTO();
 
@@ -55,8 +60,47 @@ final class NestedDTOTest extends TestCase
         self::assertSame($expected, $nestedDTO->toArray());
     }
 
-    /** @testdox Will convert arrays into the appropriate Nested DTOs */
-    public function testWillConvertArraysIntoTheAppropriateNestedDTOs()
+    /** @testdox Can construct arrays of nested DTOs */
+    public function testCanConstructArraysOfNestedDTOs()
+    {
+        $myDTOs = [
+            new MyTestDTO([
+                'name' => 'PHP Experts, Inc.',
+                'age'  => 7.01,
+                'year' => 2019,
+            ]),
+            new MyTestDTO([
+                'name' => 'Cheyenne Novosad',
+                'age'  => 22.472,
+                'year' => 1996,
+            ])
+        ];
+
+        /**
+         * @property MyTestDTO[] $myDTOs
+         */
+        $nestedDTO = new class(['myDTOs[]' => $myDTOs], ['myDTOs[]' => MyTestDTO::class]) extends NestedDTO
+        {
+        };
+
+        self::assertInstanceOf(NestedDTO::class, $nestedDTO);
+        self::assertSame($myDTOs[0], $nestedDTO->myDTOs[0]);
+        self::assertSame($myDTOs[1], $nestedDTO->myDTOs[1]);
+
+        try {
+            /**
+             * @property MyNestedTestDTO[] $myDTOs
+             */
+            $nestedDto = new class(['myDTOs' => ['asdf']], ['myDTOs' => MyNestedTestDTO::class]) extends NestedDTO
+            {
+            };
+            $this->fail('Created an invalid nested DTO.');
+        } catch (InvalidDataTypeException $e) {
+        }
+    }
+
+    /** @testdox Will convert array data into the appropriate Nested DTOs */
+    public function testWillConvertArrayDataIntoTheAppropriateNestedDTOs()
     {
         try {
             $myDTO = [
@@ -274,6 +318,6 @@ JSON;
 
         $awokenDTO = unserialize($serializedJSON);
 
-        self::assertEquals($origDTO, $awokenDTO);
+        self::assertEquals(serialize($origDTO), serialize($awokenDTO));
     }
 }
