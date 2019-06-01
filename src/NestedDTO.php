@@ -7,7 +7,7 @@
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *  GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *  https://www.phpexperts.pro/
- *  https://github.com/phpexpertsinc/Zuora-API-Client
+ *  https://github.com/phpexpertsinc/SimpleDTO
  *
  * This file is licensed under the MIT License.
  */
@@ -37,11 +37,44 @@ abstract class NestedDTO extends SimpleDTO
     private function convertPropertiesToDTOs(array $input, ?array $options): array
     {
         foreach ($this->DTOs as $property => $dtoClass) {
-            $value = $this->convertValueToArray($input[$property]) ?? $input[$property];
-            $input[$property] = new $dtoClass($value, $options ?? [SimpleDTO::PERMISSIVE]);
+            if (!is_string($property) || substr($property, -2) === '[]') {
+                $this->processDTOArray($input, $property, $dtoClass, $options);
+
+                continue;
+            }
+
+            $input[$property] = $this->convertToDTO($dtoClass, $input[$property] ?? null, $options);
         }
 
         return $input;
+    }
+
+    private function convertToDTO($dtoClass, $value, ?array $options): ?SimpleDTO
+    {
+        if ($value instanceof $dtoClass || !$value) {
+            return $value;
+        }
+
+        $newValue = $this->convertValueToArray($value) ?? $value;
+        $newDTO = new $dtoClass($newValue, $options ?? [SimpleDTO::PERMISSIVE]);
+
+        return $newDTO;
+    }
+
+    private function processDTOArray(&$input, $property, $dtoClass, ?array $options)
+    {
+        if (!is_array($input[$property])) {
+            $self = get_class($this);
+
+            throw new InvalidDataTypeException("$self::\$$property must be an array of $property");
+        }
+
+        $newProperty = substr($property, 0, -2);
+
+        foreach ($input[$property] as $index => $value) {
+            $input[$newProperty][$index] = $this->convertToDTO($dtoClass, $value, $options);
+            unset($input[$property]);
+        }
     }
 
     public function serialize()
@@ -58,7 +91,7 @@ abstract class NestedDTO extends SimpleDTO
         $this->DTOs = $decoded['DTOs'];
         $decoded['data'] = $this->convertPropertiesToDTOs($decoded['data'], $decoded['options']);
 
-        $validator = new DataTypeValidator(new $decoded['isA']);
+        $validator = new DataTypeValidator(new $decoded['isA']());
         $this->__construct($decoded['data'], $decoded['DTOs'], $decoded['options'], $validator);
     }
 }
