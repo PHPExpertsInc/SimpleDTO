@@ -73,7 +73,8 @@ final class SimpleDTOTest extends TestCase
         self::assertSame($expected, $dto->toArray());
     }
 
-    public function test_each_DTO_is_immutable()
+    /** @testdox Each DTO is immutable */
+    public function testEachDTOIsImmutable()
     {
         $this->testSettingAnyPropertyReturnsAnException();
     }
