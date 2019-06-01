@@ -69,7 +69,9 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         if (($input[$ifThis] ?? '') === $specialValue && empty($input[$thenThat])) {
             $self = get_class($this);
 
-            throw new InvalidDataTypeException("$self::\$$thenThat must be set when self::\$$ifThis is '$specialValue'.");
+            throw new InvalidDataTypeException(
+                "$self::\$$thenThat must be set when self::\$$ifThis is '$specialValue'."
+            );
         }
     }
 
@@ -112,7 +114,9 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
 
         $rulesDiff = array_diff_key($this->data, $this->dataTypeRules);
         if (!empty($rulesDiff)) {
-            throw new \LogicException('You need class-level docblocks for $' . implode(', $', array_keys($rulesDiff)) . '.');
+            throw new \LogicException(
+                'You need class-level docblocks for $' . implode(', $', array_keys($rulesDiff)) . '.'
+            );
         }
 
         // Handle any string Carbon objects.
@@ -198,7 +202,10 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
     {
         $isPermissive = in_array(self::PERMISSIVE, $this->options) || in_array(self::ALLOW_NULL, $this->options);
         if ($isPermissive) {
-            $expectedType = $expectedType[0] !== '?' && strpos($expectedType, 'null|') !== 0 ? "?$expectedType" : $expectedType;
+            $expectedType =
+                $expectedType[0] !== '?' && strpos($expectedType, 'null|') !== 0
+                    ? "?$expectedType"
+                    : $expectedType;
         }
     }
 
@@ -235,8 +242,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
 
     protected function convertValueToArray($value): ?array
     {
-        if (is_object($value))
-        {
+        if (is_object($value)) {
             // Hack to make phpstan work, because it apparently doesn't understand `is_callable()`.
             if (method_exists($value, 'toArray') && !($value instanceof Carbon)) {
                 return $value->toArray();
