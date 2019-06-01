@@ -171,9 +171,11 @@ PHPExperts\SimpleDTO\SimpleDTO
  ✔ Every property is nullable with permissive mode  
  ✔ Can be serialized  
  ✔ Can be unserialized  
+ ✔ Extra validation can be added  
 
 PHPExperts\SimpleDTO\NestedDTO  
  ✔ Will construct nested DTOs  
+ ✔ Can construct arrays of nested DTOs  
  ✔ Will convert arrays into the appropriate Nested DTOs  
  ✔ Will convert stdClasses into the appropriate Nested DTOs  
  ✔ Nested DTOs use Loose typing  
