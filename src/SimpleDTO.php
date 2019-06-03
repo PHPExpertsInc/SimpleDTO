@@ -242,7 +242,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         }
 
         $this->data[$property] = $value;
-//        $this->validator->assertIsType($value, $this->dataTypeRules[$property]);
+        $this->validator->validate([$property => $value], $this->dataTypeRules);
     }
 
     protected function convertValueToArray($value): ?array
