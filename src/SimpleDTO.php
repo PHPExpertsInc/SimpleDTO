@@ -180,14 +180,27 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         }
     }
 
+    private function extractNullableProperty(string $expectedType): string
+    {
+        if ($expectedType[0] === '?' || substr($expectedType, 0, 5) === 'null|') {
+            $nullTokenPos = $expectedType[0] === '?' ? 1 : 5;
+
+            // Then strip it out of the expected type.
+            $expectedType = substr($expectedType, $nullTokenPos ?? 1);
+        }
+
+        return $expectedType;
+    }
+
     private function processCarbonProperties(array &$input): void
     {
         foreach ($this->dataTypeRules as $property => &$expectedType) {
             // Make every property nullable if in PERMISSIVE mode.
             $this->handlePermissiveMode($expectedType);
 
-            if (in_array($expectedType, ['Carbon', Carbon::class, '\\' . Carbon::class])) {
-                if (is_string($input[$property])) {
+            $nonNullableType = $this->extractNullableProperty($expectedType);
+            if (in_array($nonNullableType, ['Carbon', Carbon::class, '\\' . Carbon::class])) {
+                if (!empty($input[$property]) && is_string($input[$property])) {
                     try {
                         $input[$property] = Carbon::parse($input[$property]);
                     } catch (\Exception $e) {
