@@ -236,8 +236,13 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
      */
     protected function overwrite($property, $value): void
     {
+        if (!isset($this->dataTypeRules[$property])) {
+            $self = static::class;
+            throw new Error("Undefined property: {$self}::\${$property}.");
+        }
+
         $this->data[$property] = $value;
-        $this->validator->validate($this->data, $this->dataTypeRules);
+//        $this->validator->assertIsType($value, $this->dataTypeRules[$property]);
     }
 
     protected function convertValueToArray($value): ?array

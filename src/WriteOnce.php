@@ -18,12 +18,16 @@ use Error;
 
 trait WriteOnce
 {
+    /** @var array */
+    private $myData = [];
+
     abstract protected function overwrite($property, $value): void;
 
     public function __set(string $property, $value): void
     {
-        if ($this->$property === null) {
+        if (array_key_exists($property, $this->myData) === false || $this->$property === null) {
             $this->overwrite($property, $value);
+            $this->myData[$property] = $value;
 
             return;
         }
