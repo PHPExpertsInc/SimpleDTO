@@ -4,6 +4,8 @@
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
+         testdox="true"
+         stopOnError="true"
          stopOnFailure="true">
     <testsuites>
         <testsuite name="main">
@@ -16,4 +18,8 @@
             <directory suffix=".php">./src</directory>
         </whitelist>
     </filter>
+
+    <logging>
+        <log type="coverage-html" target="./coverage" lowUpperBound="35" highLowerBound="85"/>
+    </logging>
 </phpunit>

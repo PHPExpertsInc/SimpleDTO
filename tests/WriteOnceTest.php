@@ -47,13 +47,64 @@ final class WriteOnceTest extends TestCase
     {
         $writeOnceDTO = $this->buildWriteOnceDTO();
 
+        self::assertInstanceOf(SimpleDTO::class, $writeOnceDTO);
+        self::assertEquals('PHP Experts, Inc.', $writeOnceDTO->name);
+    }
+
+    public function testWillValidateOnSerialize()
+    {
+        $writeOnceDTO = $this->buildWriteOnceDTO();
+
         $expected = [
-            'name' => 'PHP Experts, Inc.',
-            'age'  => null,
-            'year' => null,
+            'age'  => 'age is not a valid float',
+            'year' => 'year is not a valid int',
         ];
 
-        self::assertSame($expected, $writeOnceDTO->toArray());
+        try {
+            $writeOnceDTO->serialize();
+        } catch (InvalidDataTypeException $e) {
+            self::assertEquals($expected, $e->getReasons());
+        }
+
+        $expected = <<<'JSON'
+{
+    "isA": "PHPExperts\\DataTypeValidator\\IsAStrictDataType",
+    "options": [
+        102
+    ],
+    "dataRules": {
+        "name": "string",
+        "age": "float",
+        "year": "int"
+    },
+    "data": {
+        "name": "PHP Experts, Inc.",
+        "age": 5.2,
+        "year": 2014
+    }
+}
+JSON;
+
+        $writeOnceDTO->age = 5.2;
+        $writeOnceDTO->year = 2014;
+
+        self::assertEquals($expected, $writeOnceDTO->serialize());
+    }
+
+    public function testWillValidateOnToArray()
+    {
+        $writeOnceDTO = $this->buildWriteOnceDTO();
+
+        $expected = [
+            'age'  => 'age is not a valid float',
+            'year' => 'year is not a valid int',
+        ];
+
+        try {
+            $writeOnceDTO->toArray();
+        } catch (InvalidDataTypeException $e) {
+            $this->assertEquals($expected, $e->getReasons());
+        }
     }
 
     public function testCanWriteEachNullValueOnce()
