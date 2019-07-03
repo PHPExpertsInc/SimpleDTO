@@ -268,8 +268,8 @@ final class NestedDTOTest extends TestCase
         101
     ],
     "dataRules": {
-        "name": "?string",
-        "myDTO": "?MyTestDTO"
+        "name": "string",
+        "myDTO": "MyTestDTO"
     },
     "data": {
         "name": "Nested",
@@ -294,7 +294,7 @@ JSON;
         $expectedJSON = $this->getSerializedDTO();
         $serializedJson = sprintf(
             "%s$expectedJSON}",
-            'C:42:"PHPExperts\SimpleDTO\Tests\MyNestedTestDTO":430:{'
+            'C:42:"PHPExperts\SimpleDTO\Tests\MyNestedTestDTO":428:{'
         );
 
         self::assertSame($expectedJSON, $nestedDTO->serialize());
@@ -312,7 +312,7 @@ JSON;
     {
         $serializedJSON = sprintf(
             "%s%s}",
-            'C:42:"PHPExperts\SimpleDTO\Tests\MyNestedTestDTO":430:{',
+            'C:42:"PHPExperts\SimpleDTO\Tests\MyNestedTestDTO":428:{',
             $this->getSerializedDTO()
         );
 

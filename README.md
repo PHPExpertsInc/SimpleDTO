@@ -186,6 +186,8 @@ PHPExperts\SimpleDTO\NestedDTO
 
 PHPExperts\SimpleDTO\WriteOnceTrait  
  ✔ Can accept null values  
+ ✔ Will validate on serialize  
+ ✔ Will validate on to array  
  ✔ Can write each null value once  
  ✔ Write-Once values must validate  
 
@@ -196,6 +198,7 @@ SimpleDTO Sad Paths
  ✔ Carbon date strings must be parsable dates  
  ✔ Properties must match their data types  
  ✔ Will not unserialize DTOs with invalid data  
+ ✔ Cannot overwrite a non-existing property  
 
 ## Testing
 
