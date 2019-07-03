@@ -22,6 +22,7 @@ trait WriteOnce
     private $myData = [];
 
     abstract protected function overwrite($property, $value): void;
+    abstract public function validate();
 
     public function __set(string $property, $value): void
     {
@@ -33,5 +34,19 @@ trait WriteOnce
         }
 
         throw new Error('SimpleDTOs are immutable. Create a new one to set a new value.');
+    }
+
+    public function toArray(): array
+    {
+        $this->validate();
+
+        return parent::toArray();
+    }
+
+    public function serialize()
+    {
+        $this->validate();
+
+        return parent::serialize();
     }
 }

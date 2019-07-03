@@ -39,6 +39,9 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
     private $dataTypeRules = [];
 
     /** @var array */
+    private $origDataTypeRules = [];
+
+    /** @var array */
     private $data = [];
 
     public function __construct(array $input, array $options = [], DataTypeValidator $validator = null)
@@ -62,6 +65,12 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->spliceInDefaultValues($input);
 
         $this->loadDynamicProperties($input);
+    }
+
+    public function validate()
+    {
+        $this->validator->validate($this->data, $this->origDataTypeRules);
+        $this->extraValidation($this->data);
     }
 
     protected function ifThisThenThat(array $input, $ifThis, $specialValue, $thenThat)
@@ -118,6 +127,9 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
                 'You need class-level docblocks for $' . implode(', $', array_keys($rulesDiff)) . '.'
             );
         }
+
+        // Backup the data type rules.
+        $this->origDataTypeRules = $this->dataTypeRules;
 
         // Handle any string Carbon objects.
         $this->processCarbonProperties($input);
@@ -294,7 +306,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $output = [
             'isA'       => $this->validator->getValidationType(),
             'options'   => $this->options,
-            'dataRules' => $this->dataTypeRules,
+            'dataRules' => $this->origDataTypeRules,
             'data'      => $this->toArray(),
         ];
 
