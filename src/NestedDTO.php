@@ -22,6 +22,9 @@ abstract class NestedDTO extends SimpleDTO
     /** @var array */
     private $DTOs;
 
+    /** @var array */
+    private $data;
+
     public function __construct(array $input, array $DTOs, array $options = null, DataTypeValidator $validator = null)
     {
         if (!empty(array_diff_key($DTOs, $input))) {
@@ -32,6 +35,8 @@ abstract class NestedDTO extends SimpleDTO
         $input = $this->convertPropertiesToDTOs($input, $options);
 
         parent::__construct($input, $options ?? [SimpleDTO::PERMISSIVE], $validator);
+
+        $this->data = $input;
     }
 
     private function convertPropertiesToDTOs(array $input, ?array $options): array
@@ -51,7 +56,7 @@ abstract class NestedDTO extends SimpleDTO
 
     private function convertToDTO($dtoClass, $value, ?array $options): ?SimpleDTO
     {
-        if ($value instanceof $dtoClass || !$value) {
+        if ($value instanceof $dtoClass) {
             return $value;
         }
 
@@ -74,6 +79,34 @@ abstract class NestedDTO extends SimpleDTO
         foreach ($input[$property] as $index => $value) {
             $input[$newProperty][$index] = $this->convertToDTO($dtoClass, $value, $options);
             unset($input[$property]);
+        }
+    }
+
+    public function validate()
+    {
+        $errors = [];
+        try {
+            parent::validate();
+        }
+        catch (InvalidDataTypeException $e) {
+            $errors = $e->getReasons();
+        }
+
+        foreach ($this->DTOs as $property => $dtoClass) {
+            try {
+                if ($this->data[$property] instanceof SimpleDTO) {
+                    $this->data[$property]->validate();
+                }
+            } catch (InvalidDataTypeException $e) {
+                $errors[$property] = $e->getReasons();
+            }
+        }
+
+        if (!empty($errors)) {
+            $errorNum = count($errors);
+            $wasWere = $errorNum > 1 ? 'were' : 'was';
+            $errorErrors = $errorNum > 1 ? 's': '';
+            throw new InvalidDataTypeException("There $wasWere $errorNum error$errorErrors.", $errors);
         }
     }
 
