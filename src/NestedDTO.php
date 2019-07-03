@@ -19,8 +19,8 @@ use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 
 abstract class NestedDTO extends SimpleDTO
 {
-    /** @var array */
-    private $DTOs;
+    /** @var string[] */
+    private $DTOs = [];
 
     /** @var array */
     private $data;
@@ -37,6 +37,11 @@ abstract class NestedDTO extends SimpleDTO
         parent::__construct($input, $options ?? [SimpleDTO::PERMISSIVE], $validator);
 
         $this->data = $input;
+    }
+    
+    public function getDTOs(): array
+    {
+        return $this->DTOs;
     }
 
     private function convertPropertiesToDTOs(array $input, ?array $options): array
@@ -109,7 +114,7 @@ abstract class NestedDTO extends SimpleDTO
             throw new InvalidDataTypeException("There $wasWere $errorNum error$errorErrors.", $errors);
         }
     }
-
+    
     public function serialize()
     {
         $output = json_decode(parent::serialize(), true);
