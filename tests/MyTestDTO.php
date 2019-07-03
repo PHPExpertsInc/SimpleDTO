@@ -31,4 +31,9 @@ class MyTestDTO extends SimpleDTO
 
     /** @var int */
     protected $year = 2019;
+
+    public function overwiteTest()
+    {
+        $this->overwrite('doesntExist', true);
+    }
 }
