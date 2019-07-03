@@ -10,6 +10,11 @@
       "config": {
         "threshold": 10
       }
+    },
+    "method-count": {
+      "config": {
+        "threshold": 20
+      },
     }
   }
 }

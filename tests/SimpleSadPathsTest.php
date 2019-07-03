@@ -194,4 +194,19 @@ JSON;
             self::assertSame($expected, $e->getReasons());
         }
     }
+
+    /** @testdox Cannot overwrite a non-existing property */
+    public function testCannotOverwiteANonExistingProperty()
+    {
+        $overwriteDTO = new MyTestDTO([
+            'name'        => 'Sibi',
+            'age'         => 25.2,
+        ]);
+
+        try {
+            $overwriteDTO->overwiteTest();
+        } catch (Error $e) {
+            $this->assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$doesntExist.', $e->getMessage());
+        }
+    }
 }
