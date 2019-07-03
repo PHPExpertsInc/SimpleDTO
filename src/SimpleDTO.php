@@ -67,6 +67,11 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->loadDynamicProperties($input);
     }
 
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
     public function validate()
     {
         $this->validator->validate($this->data, $this->origDataTypeRules);
