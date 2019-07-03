@@ -39,6 +39,9 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
     private $dataTypeRules = [];
 
     /** @var array */
+    private $origDataTypeRules = [];
+
+    /** @var array */
     private $data = [];
 
     public function __construct(array $input, array $options = [], DataTypeValidator $validator = null)
@@ -62,6 +65,12 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->spliceInDefaultValues($input);
 
         $this->loadDynamicProperties($input);
+    }
+
+    public function validate()
+    {
+        $this->validator->validate($this->data, $this->origDataTypeRules);
+        $this->extraValidation($this->data);
     }
 
     protected function ifThisThenThat(array $input, $ifThis, $specialValue, $thenThat)
@@ -119,8 +128,29 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
             );
         }
 
+        // Backup the data type rules.
+        $this->origDataTypeRules = $this->dataTypeRules;
+
         // Handle any string Carbon objects.
-        $this->processCarbonProperties($input);
+        $processCarbonProperties = function (array &$input) {
+            foreach ($this->dataTypeRules as $property => &$expectedType) {
+                // Make every property nullable if in PERMISSIVE mode.
+                $this->handlePermissiveMode($expectedType);
+
+                $nonNullableType = $this->extractNullableProperty($expectedType);
+                if (in_array($nonNullableType, ['Carbon', Carbon::class, '\\' . Carbon::class])) {
+                    if (!empty($input[$property]) && is_string($input[$property])) {
+                        try {
+                            $input[$property] = Carbon::parse($input[$property]);
+                        } catch (\Exception $e) {
+                            throw new InvalidDataTypeException("$property is not a parsable date: '{$input[$property]}'.");
+                        }
+                    }
+                }
+            }
+        };
+
+        $processCarbonProperties($input);
 
         $this->validateInputs($input);
 
@@ -190,25 +220,6 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         }
 
         return $expectedType;
-    }
-
-    private function processCarbonProperties(array &$input): void
-    {
-        foreach ($this->dataTypeRules as $property => &$expectedType) {
-            // Make every property nullable if in PERMISSIVE mode.
-            $this->handlePermissiveMode($expectedType);
-
-            $nonNullableType = $this->extractNullableProperty($expectedType);
-            if (in_array($nonNullableType, ['Carbon', Carbon::class, '\\' . Carbon::class])) {
-                if (!empty($input[$property]) && is_string($input[$property])) {
-                    try {
-                        $input[$property] = Carbon::parse($input[$property]);
-                    } catch (\Exception $e) {
-                        throw new InvalidDataTypeException("$property is not a parsable date: '{$input[$property]}'.");
-                    }
-                }
-            }
-        }
     }
 
     private function handlePermissiveMode(&$expectedType)
@@ -294,7 +305,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $output = [
             'isA'       => $this->validator->getValidationType(),
             'options'   => $this->options,
-            'dataRules' => $this->dataTypeRules,
+            'dataRules' => $this->origDataTypeRules,
             'data'      => $this->toArray(),
         ];
 

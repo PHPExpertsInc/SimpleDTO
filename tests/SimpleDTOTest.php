@@ -222,9 +222,9 @@ final class SimpleDTOTest extends TestCase
         101
     ],
     "dataRules": {
-        "name": "?string",
-        "age": "?float",
-        "year": "?int"
+        "name": "string",
+        "age": "float",
+        "year": "int"
     },
     "data": {
         "year": 2019,
@@ -247,7 +247,7 @@ JSON;
         $expectedJSON = $this->getSerializedDTO();
         $serializedJson = sprintf(
             "%s$expectedJSON}",
-            'C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":297:{'
+            'C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":294:{'
         );
 
         self::assertSame($expectedJSON, $dto->serialize());
@@ -264,13 +264,13 @@ JSON;
     {
         $serializedJSON = sprintf(
             "%s%s}",
-            'C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":297:{',
+            'C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":294:{',
             $this->getSerializedDTO()
         );
 
         $awokenDTO = unserialize($serializedJSON);
 
-        self::assertEquals($origDTO, $awokenDTO);
+        self::assertEquals($origDTO->toArray(), $awokenDTO->toArray());
     }
 
     public function testExtraValidationCanBeAdded()
