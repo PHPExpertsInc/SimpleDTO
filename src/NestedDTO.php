@@ -90,11 +90,13 @@ abstract class NestedDTO extends SimpleDTO
     public function validate()
     {
         $errors = [];
+        $errorCount = 0;
         try {
             parent::validate();
         }
         catch (InvalidDataTypeException $e) {
             $errors = $e->getReasons();
+            $errorCount += count($errors);
         }
 
         foreach ($this->DTOs as $property => $dtoClass) {
@@ -104,14 +106,14 @@ abstract class NestedDTO extends SimpleDTO
                 }
             } catch (InvalidDataTypeException $e) {
                 $errors[$property] = $e->getReasons();
+                $errorCount += count($e->getReasons());
             }
         }
 
         if (!empty($errors)) {
-            $errorNum = count($errors);
-            $wasWere = $errorNum > 1 ? 'were' : 'was';
-            $errorErrors = $errorNum > 1 ? 's': '';
-            throw new InvalidDataTypeException("There $wasWere $errorNum error$errorErrors.", $errors);
+            $wasWere = $errorCount > 1 ? 'were' : 'was';
+            $errorErrors = $errorCount > 1 ? 's': '';
+            throw new InvalidDataTypeException("There $wasWere $errorCount error$errorErrors.", $errors);
         }
     }
     
