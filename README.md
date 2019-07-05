@@ -31,7 +31,7 @@ use PHPExperts\SimpleDTO\SimpleDTO;
 
 /**
  * @property-read string $name
- * @property-read Carbon $name
+ * @property-read Carbon $date
  */
 class BirthdayDTO extends SimpleDTO
 {
