@@ -28,6 +28,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
 {
     public const PERMISSIVE = 101;
     public const ALLOW_NULL = 102;
+    public const ALLOW_EXTRA = 103;
 
     /** @var array */
     private $options;
@@ -55,7 +56,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->validator = $validator;
 
         // WriteOnce trait needs to allow nullables.
-        if (in_array(WriteOnce::class, class_uses($this))) {
+        if (in_array(WriteOnce::class, class_uses_recursive($this))) {
             $this->options[] = self::ALLOW_NULL;
         }
 
@@ -141,12 +142,13 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
 
         $this->validateInputs($input);
 
-        $inputDiff = array_diff_key($input, $this->dataTypeRules);
-        if (!in_array(self::PERMISSIVE, $this->options) && !empty($inputDiff)) {
-            $self = static::class;
-            $property = key($inputDiff);
-            throw new Error("Undefined property: {$self}::\${$property}.");
-        }
+//        $inputDiff = array_diff_key($input, $this->dataTypeRules);
+//        if (!(in_array(self::PERMISSIVE, $this->options) ||
+//            in_array(self::ALLOW_EXTRA, $this->options)) && !empty($inputDiff)) {
+//            $self = static::class;
+//            $property = key($inputDiff);
+//            throw new Error("Undefined property: {$self}::\${$property}.");
+//        }
 
         $this->data = $input;
     }
