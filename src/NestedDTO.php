@@ -27,7 +27,18 @@ abstract class NestedDTO extends SimpleDTO
 
     public function __construct(array $input, array $DTOs, array $options = null, DataTypeValidator $validator = null)
     {
-        if (!empty(array_diff_key($DTOs, $input))) {
+        $filterArraySymbol = function (array $DTOs): array {
+            $results = [];
+            foreach ($DTOs as $key => $value) {
+                $key = substr($key, -2) === '[]' ? substr($key, 0, -2) : $key;
+
+                $results[$key] = $value;
+            }
+
+            return $results;
+        };
+
+        if (!empty(array_diff_key($filterArraySymbol($DTOs), $input))) {
             throw new InvalidDataTypeException('Missing critical DTO input(s).', array_diff_key($DTOs, $input));
         }
 
@@ -47,7 +58,7 @@ abstract class NestedDTO extends SimpleDTO
     private function convertPropertiesToDTOs(array $input, ?array $options): array
     {
         foreach ($this->DTOs as $property => $dtoClass) {
-            if (!is_string($property) || substr($property, -2) === '[]') {
+            if (substr($property, -2) === '[]' || (!empty($input[$property]) && is_array($input[$property]))) {
                 $this->processDTOArray($input, $property, $dtoClass, $options);
 
                 continue;
@@ -73,17 +84,22 @@ abstract class NestedDTO extends SimpleDTO
 
     private function processDTOArray(&$input, $property, $dtoClass, ?array $options)
     {
-        if (!is_array($input[$property])) {
+        $newProperty = substr($property, -2) === '[]' ? substr($property, 0, -2) : $property;
+
+        if (!is_array($input[$property] ?? null) && !is_array($input[$newProperty] ?? null)) {
             $self = get_class($this);
 
             throw new InvalidDataTypeException("$self::\$$property must be an array of $property");
         }
 
-        $newProperty = substr($property, 0, -2);
+        $foundDTOArray = $input[$newProperty] ?? $input[$property];
 
-        foreach ($input[$property] as $index => $value) {
+        foreach ($foundDTOArray as $index => $value) {
+            if (isset($input[$property]) && $foundDTOArray === $input[$property]) {
+                unset($input[$property]);
+            }
+
             $input[$newProperty][$index] = $this->convertToDTO($dtoClass, $value, $options);
-            unset($input[$property]);
         }
     }
 
@@ -116,7 +132,7 @@ abstract class NestedDTO extends SimpleDTO
             throw new InvalidDataTypeException("There $wasWere $errorCount error$errorErrors.", $errors);
         }
     }
-    
+
     public function serialize()
     {
         $output = json_decode(parent::serialize(), true);
