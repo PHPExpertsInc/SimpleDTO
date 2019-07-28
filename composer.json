@@ -23,7 +23,8 @@
         "php": ">=7.1",
         "ext-json": "*",
         "nesbot/carbon": "2.*",
-        "phpexperts/datatype-validator": "^1.0"
+        "phpexperts/datatype-validator": "^1.0",
+        "phpexperts/laravel-env-polyfill": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "7.*|8.*",
