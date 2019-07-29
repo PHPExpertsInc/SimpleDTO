@@ -79,7 +79,7 @@ final class NestedDTOTest extends TestCase
         /**
          * @property MyTestDTO[] $myDTOs
          */
-        $nestedDTO = new class(['myDTOs[]' => $myDTOs], ['myDTOs[]' => MyTestDTO::class]) extends NestedDTO
+        $nestedDTO = new class(['myDTOs' => $myDTOs], ['myDTOs[]' => MyTestDTO::class]) extends NestedDTO
         {
         };
 
@@ -108,16 +108,16 @@ final class NestedDTOTest extends TestCase
                 'age'  => 7.2,
                 'year' => 2012,
             ];
+
+            /**
+             * @property MyTestDTO $myDTO
+             */
+            $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO
+            {
+            };
         } catch (InvalidDataTypeException $e) {
             dd($e->getReasons());
         }
-
-        /**
-         * @property MyTestDTO $myDTO
-         */
-        $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO
-        {
-        };
 
         $expected = [
             'myDTO' => [

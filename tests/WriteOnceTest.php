@@ -91,7 +91,8 @@ JSON;
         self::assertEquals($expected, $writeOnceDTO->serialize());
     }
 
-    public function testWillValidateOnToArray()
+    /** @testdox Will validate when toArray() is called */
+    public function testWillValidateWhenToArrayIsCalled()
     {
         $writeOnceDTO = $this->buildWriteOnceDTO();
 
