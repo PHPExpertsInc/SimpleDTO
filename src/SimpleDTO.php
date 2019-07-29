@@ -68,12 +68,17 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->loadDynamicProperties($input);
     }
 
+    public function isPermissive(): bool
+    {
+        return in_array(self::PERMISSIVE, $this->options);
+    }
+
     public function getData(): array
     {
         return $this->data;
     }
 
-    public function validate()
+    public function validate(): void
     {
         $this->validator->validate($this->data, $this->origDataTypeRules);
         $this->extraValidation($this->data);
@@ -142,13 +147,13 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
 
         $this->validateInputs($input);
 
-//        $inputDiff = array_diff_key($input, $this->dataTypeRules);
-//        if (!(in_array(self::PERMISSIVE, $this->options) ||
-//            in_array(self::ALLOW_EXTRA, $this->options)) && !empty($inputDiff)) {
-//            $self = static::class;
-//            $property = key($inputDiff);
-//            throw new Error("Undefined property: {$self}::\${$property}.");
-//        }
+        $inputDiff = array_diff_key($input, $this->dataTypeRules);
+        if (!(in_array(self::PERMISSIVE, $this->options) ||
+            in_array(self::ALLOW_EXTRA, $this->options)) && !empty($inputDiff)) {
+            $self = static::class;
+            $property = key($inputDiff);
+            throw new Error("Undefined property: {$self}::\${$property}.");
+        }
 
         $this->data = $input;
     }
@@ -277,8 +282,28 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->validator->validate([$property => $value], $this->dataTypeRules);
     }
 
+    /**
+     * Recursively converts every NestedDTO (or any other object) to an array.
+     * Even arrays of objects.
+     *
+     * @return array
+     */
     protected function convertValueToArray($value): ?array
     {
+        // Recurse into array values.
+        $recurseIntoArray = function (array &$input): ?array {
+            $newArray = [];
+            foreach ($input as $key => $value) {
+                $newArray[$key] = $this->convertValueToArray($value) ?? $value;
+            }
+
+            if ($input === $newArray) {
+                return null;
+            }
+
+            return $newArray;
+        };
+
         if (is_object($value)) {
             // Hack to make phpstan work, because it apparently doesn't understand `is_callable()`.
             if (method_exists($value, 'toArray') && !($value instanceof Carbon)) {
@@ -290,7 +315,13 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
             }
         }
 
-        return null;
+        if (!is_array($value)) {
+            return null;
+        }
+
+        $value = $recurseIntoArray($value);
+
+        return $value;
     }
 
     public function toArray(): array
