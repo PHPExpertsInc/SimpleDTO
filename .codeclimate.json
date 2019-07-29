@@ -15,6 +15,11 @@
       "config": {
         "threshold": 30
       }
+    },
+    "return-statements": {
+      "config": {
+        "threshold": 10
+      }
     }
   }
 }
