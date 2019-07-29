@@ -25,11 +25,19 @@ abstract class NestedDTO extends SimpleDTO
     /** @var array */
     private $data;
 
-    public function __construct(array $input, array $DTOs, array $options = null, DataTypeValidator $validator = null)
+    public function __construct(
+        array $input, array $DTOs, array $options = null, DataTypeValidator $validator = null
+    )
     {
         $filterArraySymbol = function (array $DTOs): array {
             $results = [];
             foreach ($DTOs as $key => $value) {
+                if (!is_string($key)) {
+                    $self = get_class($this);
+                    throw new InvalidDataTypeException(
+                        "$self::\$key must be a string, but it is actually an integer."
+                    );
+                }
                 $key = substr($key, -2) === '[]' ? substr($key, 0, -2) : $key;
 
                 $results[$key] = $value;
@@ -42,10 +50,12 @@ abstract class NestedDTO extends SimpleDTO
             throw new InvalidDataTypeException('Missing critical DTO input(s).', array_diff_key($DTOs, $input));
         }
 
+        $options = $options ?? [self::PERMISSIVE];
+
         $this->DTOs = $DTOs;
         $input = $this->convertPropertiesToDTOs($input, $options);
 
-        parent::__construct($input, $options ?? [SimpleDTO::PERMISSIVE], $validator);
+        parent::__construct($input, $options, $validator);
 
         $this->data = $input;
     }
@@ -64,25 +74,41 @@ abstract class NestedDTO extends SimpleDTO
                 continue;
             }
 
-            $input[$property] = $this->convertToDTO($dtoClass, $input[$property] ?? null, $options);
+            $input[$property] = $this->convertToDTO($dtoClass, $input[$property] ?? null, $options, $property);
         }
 
         return $input;
     }
 
-    private function convertToDTO($dtoClass, $value, ?array $options): ?SimpleDTO
+    private function convertToDTO($dtoClass, $value, ?array $options, string $property): ?SimpleDTO
     {
-        if ($value instanceof $dtoClass) {
+        $assertIsAnArray = function ($newValue, string $property): void {
+            if (is_array($newValue)) {
+                return;
+            }
+
+            $self = get_class($this);
+            $actualType = gettype($newValue);
+            $n = in_array($actualType, ['array', 'integer', 'object']) ? 'n' : '';
+
+            throw new InvalidDataTypeException(
+                "$self::\$$property could not be converted into a SimpleDTO successfully because it is a$n $actualType."
+            );
+        };
+
+        if ($value instanceof $dtoClass && $value instanceof SimpleDTO) {
             return $value;
         }
 
         $newValue = $this->convertValueToArray($value) ?? $value;
+        $assertIsAnArray($newValue, $property);
+
         $newDTO = new $dtoClass($newValue, $options ?? [SimpleDTO::PERMISSIVE]);
 
         return $newDTO;
     }
 
-    private function processDTOArray(&$input, $property, $dtoClass, ?array $options)
+    private function processDTOArray(&$input, $property, $dtoClass, ?array $options): void
     {
         $newProperty = substr($property, -2) === '[]' ? substr($property, 0, -2) : $property;
 
@@ -99,11 +125,17 @@ abstract class NestedDTO extends SimpleDTO
                 unset($input[$property]);
             }
 
-            $input[$newProperty][$index] = $this->convertToDTO($dtoClass, $value, $options);
+            if (!($value instanceof $dtoClass) && !is_array($value) && !($value instanceof \stdClass)) {
+                $input[$newProperty] = $this->convertToDTO($dtoClass, $foundDTOArray, $options, $property);
+
+                break;
+            }
+
+            $input[$newProperty][$index] = $this->convertToDTO($dtoClass, $value, $options, $property);
         }
     }
 
-    public function validate()
+    public function validate(): void
     {
         $errors = [];
         $errorCount = 0;
