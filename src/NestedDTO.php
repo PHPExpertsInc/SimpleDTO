@@ -25,9 +25,7 @@ abstract class NestedDTO extends SimpleDTO
     /** @var array */
     private $data;
 
-    public function __construct(
-        array $input, array $DTOs, array $options = null, DataTypeValidator $validator = null
-    )
+    public function __construct(array $input, array $DTOs, array $options = null, DataTypeValidator $validator = null)
     {
         $filterArraySymbol = function (array $DTOs): array {
             $results = [];
@@ -141,8 +139,7 @@ abstract class NestedDTO extends SimpleDTO
         $errorCount = 0;
         try {
             parent::validate();
-        }
-        catch (InvalidDataTypeException $e) {
+        } catch (InvalidDataTypeException $e) {
             $errors = $e->getReasons();
             $errorCount += count($errors);
         }
@@ -160,7 +157,7 @@ abstract class NestedDTO extends SimpleDTO
 
         if (!empty($errors)) {
             $wasWere = $errorCount > 1 ? 'were' : 'was';
-            $errorErrors = $errorCount > 1 ? 's': '';
+            $errorErrors = $errorCount > 1 ? 's' : '';
             throw new InvalidDataTypeException("There $wasWere $errorCount error$errorErrors.", $errors);
         }
     }
