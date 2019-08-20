@@ -200,7 +200,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
                 throw new InvalidDataTypeException('A class data type docblock is malformed.');
             }
 
-            $this->dataTypeRules[substr($prop[1], 1)] = $prop[0];
+            $this->dataTypeRules[trim(substr($prop[1], 1))] = $prop[0];
         }
     }
 
