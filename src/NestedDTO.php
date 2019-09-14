@@ -123,6 +123,14 @@ abstract class NestedDTO extends SimpleDTO
                 unset($input[$property]);
             }
 
+            if (is_array($dtoClass)) {
+                if (empty($dtoClass[0]) || !is_object($dtoClass[0] && !is_string($dtoClass[0]))) {
+                    throw new InvalidDataTypeException('A malformed DTO class was passed.');
+                }
+
+                $dtoClass = $dtoClass[0];
+            }
+
             if (!($value instanceof $dtoClass) && !is_array($value) && !($value instanceof \stdClass)) {
                 $input[$newProperty] = $this->convertToDTO($dtoClass, $foundDTOArray, $options, $property);
 
