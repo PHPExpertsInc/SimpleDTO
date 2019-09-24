@@ -124,7 +124,7 @@ abstract class NestedDTO extends SimpleDTO
             }
 
             if (is_array($dtoClass)) {
-                if (empty($dtoClass[0]) || !is_object($dtoClass[0] && !is_string($dtoClass[0]))) {
+                if (empty($dtoClass[0]) || !is_object($dtoClass[0]) && !is_string($dtoClass[0])) {
                     throw new InvalidDataTypeException('A malformed DTO class was passed.');
                 }
 
