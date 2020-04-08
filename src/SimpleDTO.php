@@ -84,7 +84,13 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->extraValidation($this->data);
     }
 
-    protected function ifThisThenThat(array $input, $ifThis, $specialValue, $thenThat)
+    /**
+     * @param array  $input
+     * @param string $ifThis
+     * @param mixed  $specialValue
+     * @param string $thenThat
+     */
+    protected function ifThisThenThat(array $input, string $ifThis, $specialValue, string $thenThat): void
     {
         if (($input[$ifThis] ?? '') === $specialValue && empty($input[$thenThat])) {
             $self = get_class($this);
@@ -164,12 +170,17 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
      * This is just a placeholder so that child classes can override it.
      *
      * @param array $input
+     * @return void
      */
     protected function extraValidation(array $input)
     {
     }
 
-    private function validateInputs(array $input)
+    /**
+     * @param array $input
+     * @return void
+     */
+    private function validateInputs(array $input): void
     {
         $this->validator->validate($input, $this->dataTypeRules);
         $this->extraValidation($input);
@@ -237,7 +248,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         }
     }
 
-    private function handlePermissiveMode(&$expectedType)
+    private function handlePermissiveMode(string &$expectedType): void
     {
         $isPermissive = in_array(self::PERMISSIVE, $this->options) || in_array(self::ALLOW_NULL, $this->options);
         if ($isPermissive) {
@@ -253,6 +264,10 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         return array_key_exists($property, $this->data);
     }
 
+    /**
+     * @param string $property
+     * @return mixed
+     */
     public function __get(string $property)
     {
         if (!$this->__isset($property)) {
@@ -263,6 +278,10 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         return $this->data[$property];
     }
 
+    /**
+     * @param string $property
+     * @param mixed  $value
+     */
     public function __set(string $property, $value): void
     {
         throw new Error('SimpleDTOs are immutable. Create a new one to set a new value.');
@@ -288,7 +307,8 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
      * Recursively converts every NestedDTO (or any other object) to an array.
      * Even arrays of objects.
      *
-     * @return array
+     * @param mixed $value
+     * @return array|null
      */
     protected function convertValueToArray($value): ?array
     {
@@ -340,6 +360,9 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         return $this->toArray();
     }
 
+    /**
+     * @return false|string
+     */
     public function serialize()
     {
         $output = [
@@ -352,6 +375,9 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         return json_encode($output, JSON_PRETTY_PRINT);
     }
 
+    /**
+     * @param string $serialized
+     */
     public function unserialize($serialized): void
     {
         $input = json_decode($serialized, true);

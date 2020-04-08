@@ -14,10 +14,12 @@
 
 namespace PHPExperts\SimpleDTO;
 
+use JsonSerializable;
 use PHPExperts\DataTypeValidator\DataTypeValidator;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
+use Serializable;
 
-abstract class NestedDTO extends SimpleDTO
+abstract class NestedDTO extends SimpleDTO implements JsonSerializable, Serializable
 {
     /** @var string[] */
     private $DTOs = [];
@@ -57,7 +59,7 @@ abstract class NestedDTO extends SimpleDTO
 
         $this->data = $input;
     }
-    
+
     public function getDTOs(): array
     {
         return $this->DTOs;
@@ -78,7 +80,14 @@ abstract class NestedDTO extends SimpleDTO
         return $input;
     }
 
-    private function convertToDTO($dtoClass, $value, ?array $options, string $property): ?SimpleDTO
+    /**
+     * @param string     $dtoClass
+     * @param mixed      $value
+     * @param array|null $options
+     * @param string     $property
+     * @return SimpleDTO|null
+     */
+    private function convertToDTO(string $dtoClass, $value, ?array $options, string $property): ?SimpleDTO
     {
         $assertIsAnArray = function ($newValue, string $property): void {
             if (is_array($newValue)) {
@@ -106,7 +115,13 @@ abstract class NestedDTO extends SimpleDTO
         return $newDTO;
     }
 
-    private function processDTOArray(&$input, $property, $dtoClass, ?array $options): void
+    /**
+     * @param array        $input
+     * @param string       $property
+     * @param string|array $dtoClass
+     * @param array|null   $options
+     */
+    private function processDTOArray(array &$input, string $property, $dtoClass, ?array $options): void
     {
         $newProperty = substr($property, -2) === '[]' ? substr($property, 0, -2) : $property;
 
@@ -170,6 +185,9 @@ abstract class NestedDTO extends SimpleDTO
         }
     }
 
+    /**
+     * @return false|string
+     */
     public function serialize()
     {
         $output = json_decode(parent::serialize(), true);
@@ -178,6 +196,9 @@ abstract class NestedDTO extends SimpleDTO
         return json_encode($output, JSON_PRETTY_PRINT);
     }
 
+    /**
+     * @param string $serialized
+     */
     public function unserialize($serialized): void
     {
         $decoded = json_decode($serialized, true);
