@@ -26,7 +26,7 @@ final class NestedDTOTest extends TestCase
     {
         $myDTO = new MyTestDTO([
             'name' => 'PHP Experts, Inc.',
-            'age'  => 7.01,
+            'age' => 7.01,
             'year' => 2019,
         ]);
 
@@ -35,8 +35,7 @@ final class NestedDTOTest extends TestCase
              * @property MyTestDTO $myDTO
              */
             $nestedDTO = new MyNestedTestDTO(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]);
-        }
-        catch (InvalidDataTypeException $e) {
+        } catch (InvalidDataTypeException $e) {
             dd([$e->getReasons(), $e->getTraceAsString()]);
         }
 
@@ -49,10 +48,10 @@ final class NestedDTOTest extends TestCase
         $nestedDTO = $this->buildNestedDTO();
 
         $expected = [
-            'name'  => 'Nested',
+            'name' => 'Nested',
             'myDTO' => [
                 'name' => 'PHP Experts, Inc.',
-                'age'  => 7.01,
+                'age' => 7.01,
                 'year' => 2019,
             ],
         ];
@@ -66,12 +65,12 @@ final class NestedDTOTest extends TestCase
         $myDTOs = [
             new MyTestDTO([
                 'name' => 'PHP Experts, Inc.',
-                'age'  => 7.01,
+                'age' => 7.01,
                 'year' => 2019,
             ]),
             new MyTestDTO([
                 'name' => 'Cheyenne Novosad',
-                'age'  => 22.472,
+                'age' => 22.472,
                 'year' => 1996,
             ])
         ];
@@ -79,8 +78,7 @@ final class NestedDTOTest extends TestCase
         /**
          * @property MyTestDTO[] $myDTOs
          */
-        $nestedDTO = new class(['myDTOs' => $myDTOs], ['myDTOs[]' => MyTestDTO::class]) extends NestedDTO
-        {
+        $nestedDTO = new class(['myDTOs' => $myDTOs], ['myDTOs[]' => MyTestDTO::class]) extends NestedDTO {
         };
 
         self::assertInstanceOf(NestedDTO::class, $nestedDTO);
@@ -91,12 +89,33 @@ final class NestedDTOTest extends TestCase
             /**
              * @property MyNestedTestDTO[] $myDTOs
              */
-            $nestedDto = new class(['myDTOs' => ['asdf']], ['myDTOs' => MyNestedTestDTO::class]) extends NestedDTO
-            {
+            $nestedDto = new class(['myDTOs' => ['asdf']], ['myDTOs' => MyNestedTestDTO::class]) extends NestedDTO {
             };
             $this->fail('Created an invalid nested DTO.');
         } catch (InvalidDataTypeException $e) {
         }
+    }
+
+    /** @testdox Can retrieve the stored DTOs. */
+    public function testCanRetrieveTheDTOs()
+    {
+        $myDTOs = [
+            new MyTestDTO([
+                'name' => 'PHP Experts, Inc.',
+                'age' => 8.01,
+                'year' => 2020,
+            ]),
+        ];
+
+        /**
+         * @property MyTestDTO[] $myDTOs
+         */
+        $nestedDTO = new class(['myDTOs' => $myDTOs], ['myDTOs[]' => MyTestDTO::class]) extends NestedDTO {
+        };
+
+        $expected = ['myDTOs[]' => MyTestDTO::class];
+
+        self::assertSame($expected, $nestedDTO->getDTOs());
     }
 
     /** @testdox Will convert array data into the appropriate Nested DTOs */
@@ -105,15 +124,14 @@ final class NestedDTOTest extends TestCase
         try {
             $myDTO = [
                 'name' => 'PHP Experts, Inc.',
-                'age'  => 7.2,
+                'age' => 7.2,
                 'year' => 2012,
             ];
 
             /**
              * @property MyTestDTO $myDTO
              */
-            $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO
-            {
+            $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO {
             };
         } catch (InvalidDataTypeException $e) {
             dd($e->getReasons());
@@ -122,7 +140,7 @@ final class NestedDTOTest extends TestCase
         $expected = [
             'myDTO' => [
                 'name' => 'PHP Experts, Inc.',
-                'age'  => 7.2,
+                'age' => 7.2,
                 'year' => 2012,
             ],
         ];
@@ -133,27 +151,22 @@ final class NestedDTOTest extends TestCase
     /** @testdox Will convert stdClasses into the appropriate Nested DTOs */
     public function testWillConvertStdClassesIntoTheAppropriateNestedDTOs()
     {
-        try {
-            $myDTO = (object) [
-                'name' => 'PHP Experts, Inc.',
-                'age'  => 7.2,
-                'year' => 2012,
-            ];
-        } catch (InvalidDataTypeException $e) {
-            dd($e->getReasons());
-        }
+        $myDTO = (object)[
+            'name' => 'PHP Experts, Inc.',
+            'age' => 7.2,
+            'year' => 2012,
+        ];
 
         /**
          * @property MyTestDTO $myDTO
          */
-        $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO
-        {
+        $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO {
         };
 
         $expected = [
             'myDTO' => [
                 'name' => 'PHP Experts, Inc.',
-                'age'  => 7.2,
+                'age' => 7.2,
                 'year' => 2012,
             ],
         ];
@@ -166,9 +179,9 @@ final class NestedDTOTest extends TestCase
     {
         try {
             $myDTOInfo = [
-                'name'  => 'PHP Experts, Inc.',
-                'age'   => null,
-                'year'  => '2019',
+                'name' => 'PHP Experts, Inc.',
+                'age' => null,
+                'year' => '2019',
                 'extra' => true,
             ];
         } catch (InvalidDataTypeException $e) {
@@ -178,15 +191,14 @@ final class NestedDTOTest extends TestCase
         /**
          * @property MyTestDTO $myDTO
          */
-        $nestedDTO = new class(['myDTO' => $myDTOInfo], ['myDTO' => MyTestDTO::class]) extends NestedDTO
-        {
+        $nestedDTO = new class(['myDTO' => $myDTOInfo], ['myDTO' => MyTestDTO::class]) extends NestedDTO {
         };
 
         $expected = [
             'myDTO' => [
-                'name'  => 'PHP Experts, Inc.',
-                'age'   => null,
-                'year'  => '2019',
+                'name' => 'PHP Experts, Inc.',
+                'age' => null,
+                'year' => '2019',
                 'extra' => true,
             ],
         ];
@@ -199,7 +211,7 @@ final class NestedDTOTest extends TestCase
     {
         $myDTO = new MyTestDTO([
             'name' => 'PHP Experts, Inc.',
-            'age'  => 7.01,
+            'age' => 7.01,
             'year' => 2019,
         ]);
 
@@ -207,8 +219,7 @@ final class NestedDTOTest extends TestCase
             /**
              * @property MyTestDTO $myDTO
              */
-            $dto = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class, 'missing' => MyTestDTO::class]) extends NestedDTO
-            {
+            $dto = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class, 'missing' => MyTestDTO::class]) extends NestedDTO {
             };
 
             $this->fail('A nested DTO was created without all of the required DTOs.');
@@ -221,35 +232,34 @@ final class NestedDTOTest extends TestCase
     /** @testdox Optional, unregistered, Nested DTOs are handled gracefully */
     public function testOptionalUnregisteredNestedDTOsAreHandledGracefully()
     {
-        $myDTO = (object) [
+        $myDTO = (object)[
             'name' => 'PHP Experts, Inc.',
-            'age'  => 7.01,
+            'age' => 7.01,
             'year' => 2019,
         ];
 
         /**
          * @property MyTestDTO $myDTO
          */
-        $dto = new class(['myDTO' => $myDTO, 'extra' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO
-        {
+        $dto = new class(['myDTO' => $myDTO, 'extra' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO {
         };
 
         $expectedArray = [
             'myDTO' => [
                 'name' => 'PHP Experts, Inc.',
-                'age'  => 7.01,
+                'age' => 7.01,
                 'year' => 2019,
             ],
             'extra' => [
                 'name' => 'PHP Experts, Inc.',
-                'age'  => 7.01,
+                'age' => 7.01,
                 'year' => 2019,
             ],
         ];
 
-        $expectedObject = (object) [
+        $expectedObject = (object)[
             'name' => 'PHP Experts, Inc.',
-            'age'  => 7.01,
+            'age' => 7.01,
             'year' => 2019,
         ];
 
@@ -319,5 +329,14 @@ JSON;
         $awokenDTO = unserialize($serializedJSON);
 
         self::assertEquals(serialize($origDTO), serialize($awokenDTO));
+    }
+
+    /** @testdox Can validate the DTO manually */
+    public function testCanValidateTheDTOManually()
+    {
+        $nestedDTO = $this->buildNestedDTO();
+
+        $nestedDTO->validate();
+        self::assertTrue(true, 'This is a meaningless test by itself.');
     }
 }

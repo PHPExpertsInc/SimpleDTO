@@ -19,7 +19,7 @@ use PHPExperts\DataTypeValidator\DataTypeValidator;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use Serializable;
 
-abstract class NestedDTO extends SimpleDTO implements JsonSerializable, Serializable
+abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
 {
     /** @var string[] */
     private $DTOs = [];
@@ -89,26 +89,11 @@ abstract class NestedDTO extends SimpleDTO implements JsonSerializable, Serializ
      */
     private function convertToDTO($dtoClass, $value, ?array $options, string $property): ?SimpleDTO
     {
-        $assertIsAnArray = function ($newValue, string $property): void {
-            if (is_array($newValue)) {
-                return;
-            }
-
-            $self = get_class($this);
-            $actualType = gettype($newValue);
-            $n = in_array($actualType, ['array', 'integer', 'object']) ? 'n' : '';
-
-            throw new InvalidDataTypeException(
-                "$self::\$$property could not be converted into a SimpleDTO successfully because it is a$n $actualType."
-            );
-        };
-
         if ($value instanceof $dtoClass && $value instanceof SimpleDTO) {
             return $value;
         }
 
         $newValue = $this->convertValueToArray($value) ?? $value;
-        $assertIsAnArray($newValue, $property);
 
         $newDTO = new $dtoClass($newValue, $options ?? [SimpleDTO::PERMISSIVE]);
 

@@ -17,9 +17,9 @@ namespace PHPExperts\SimpleDTO\Tests;
 use PHPExperts\SimpleDTO\SimpleDTO;
 
 /**
- * @property-read string $name
- * @property-read float $age
- * @property-read int $year
+ * @property string $name
+ * @property float $age
+ * @property int $year
  */
 class MyTestDTO extends SimpleDTO
 {

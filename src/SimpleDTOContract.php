@@ -15,12 +15,10 @@
 namespace PHPExperts\SimpleDTO;
 
 use JsonSerializable;
-use PHPExperts\DataTypeValidator\DataTypeValidator;
 use Serializable;
 
 interface SimpleDTOContract extends JsonSerializable, Serializable
 {
-    public function __construct(array $input, array $options = [], DataTypeValidator $validator = null);
     public function isPermissive(): bool;
     public function getData(): array;
     public function validate(): void;

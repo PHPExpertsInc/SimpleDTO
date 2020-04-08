@@ -16,15 +16,13 @@ namespace PHPExperts\SimpleDTO;
 
 use Carbon\Carbon;
 use Error;
-use JsonSerializable;
 use PHPExperts\DataTypeValidator\DataTypeValidator;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\DataTypeValidator\IsAFuzzyDataType;
 use PHPExperts\DataTypeValidator\IsAStrictDataType;
 use ReflectionClass;
-use Serializable;
 
-abstract class SimpleDTO implements JsonSerializable, Serializable
+abstract class SimpleDTO implements SimpleDTOContract
 {
     public const PERMISSIVE = 101;
     public const ALLOW_NULL = 102;
