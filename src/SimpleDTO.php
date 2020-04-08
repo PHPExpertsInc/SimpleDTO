@@ -148,8 +148,10 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         $this->validateInputs($input);
 
         $inputDiff = array_diff_key($input, $this->dataTypeRules);
-        if (!(in_array(self::PERMISSIVE, $this->options) ||
-            in_array(self::ALLOW_EXTRA, $this->options)) && !empty($inputDiff)) {
+        if (
+            !(in_array(self::PERMISSIVE, $this->options)
+            || in_array(self::ALLOW_EXTRA, $this->options)) && !empty($inputDiff)
+        ) {
             $self = static::class;
             $property = key($inputDiff);
             throw new Error("Undefined property: {$self}::\${$property}.");
