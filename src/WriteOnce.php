@@ -22,7 +22,7 @@ trait WriteOnce
     private $myData = [];
 
     abstract protected function overwrite($property, $value): void;
-    abstract public function validate();
+    abstract public function validate(): void;
 
     public function __set(string $property, $value): void
     {
