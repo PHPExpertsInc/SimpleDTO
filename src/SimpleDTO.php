@@ -305,8 +305,7 @@ abstract class SimpleDTO implements JsonSerializable, Serializable
         };
 
         if (is_object($value)) {
-            // Hack to make phpstan work, because it apparently doesn't understand `is_callable()`.
-            if (method_exists($value, 'toArray') && !($value instanceof Carbon)) {
+            if (is_callable([$value, 'toArray']) && !($value instanceof Carbon)) {
                 return $value->toArray();
             }
 
