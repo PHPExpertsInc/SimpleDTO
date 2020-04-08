@@ -3,11 +3,11 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019 PHP Experts, Inc.
+ * Copyright © 2019-2020 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
- *  GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
- *  https://www.phpexperts.pro/
- *  https://github.com/phpexpertsinc/SimpleDTO
+ *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
+ *   https://www.phpexperts.pro/
+ *   https://github.com/PHPExpertsInc/SimpleDTO
  *
  * This file is licensed under the MIT License.
  */
@@ -84,8 +84,7 @@ final class SimpleDTOTest extends TestCase
         try {
             $this->dto->name = 'asdf';
             $this->fail('Setting a property did not throw an error.');
-        }
-        catch (Error $e) {
+        } catch (Error $e) {
             $this->assertEquals(
                 'SimpleDTOs are immutable. Create a new one to set a new value.',
                 $e->getMessage()
@@ -257,13 +256,12 @@ JSON;
     }
 
     /**
-     * @param SimpleDTO $origDTO
      * @depends testCanBeSerialized
      */
     public function testCanBeUnserialized(SimpleDTO $origDTO)
     {
         $serializedJSON = sprintf(
-            "%s%s}",
+            '%s%s}',
             'C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":294:{',
             $this->getSerializedDTO()
         );

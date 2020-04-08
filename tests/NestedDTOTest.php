@@ -3,11 +3,11 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019 PHP Experts, Inc.
+ * Copyright © 2019-2020 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
- *  GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
- *  https://www.phpexperts.pro/
- *  https://github.com/phpexpertsinc/SimpleDTO
+ *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
+ *   https://www.phpexperts.pro/
+ *   https://github.com/PHPExpertsInc/SimpleDTO
  *
  * This file is licensed under the MIT License.
  */
@@ -26,7 +26,7 @@ final class NestedDTOTest extends TestCase
     {
         $myDTO = new MyTestDTO([
             'name' => 'PHP Experts, Inc.',
-            'age' => 7.01,
+            'age'  => 7.01,
             'year' => 2019,
         ]);
 
@@ -48,10 +48,10 @@ final class NestedDTOTest extends TestCase
         $nestedDTO = $this->buildNestedDTO();
 
         $expected = [
-            'name' => 'Nested',
+            'name'  => 'Nested',
             'myDTO' => [
                 'name' => 'PHP Experts, Inc.',
-                'age' => 7.01,
+                'age'  => 7.01,
                 'year' => 2019,
             ],
         ];
@@ -65,14 +65,14 @@ final class NestedDTOTest extends TestCase
         $myDTOs = [
             new MyTestDTO([
                 'name' => 'PHP Experts, Inc.',
-                'age' => 7.01,
+                'age'  => 7.01,
                 'year' => 2019,
             ]),
             new MyTestDTO([
                 'name' => 'Cheyenne Novosad',
-                'age' => 22.472,
+                'age'  => 22.472,
                 'year' => 1996,
-            ])
+            ]),
         ];
 
         /**
@@ -102,7 +102,7 @@ final class NestedDTOTest extends TestCase
         $myDTOs = [
             new MyTestDTO([
                 'name' => 'PHP Experts, Inc.',
-                'age' => 8.01,
+                'age'  => 8.01,
                 'year' => 2020,
             ]),
         ];
@@ -124,7 +124,7 @@ final class NestedDTOTest extends TestCase
         try {
             $myDTO = [
                 'name' => 'PHP Experts, Inc.',
-                'age' => 7.2,
+                'age'  => 7.2,
                 'year' => 2012,
             ];
 
@@ -140,7 +140,7 @@ final class NestedDTOTest extends TestCase
         $expected = [
             'myDTO' => [
                 'name' => 'PHP Experts, Inc.',
-                'age' => 7.2,
+                'age'  => 7.2,
                 'year' => 2012,
             ],
         ];
@@ -151,9 +151,9 @@ final class NestedDTOTest extends TestCase
     /** @testdox Will convert stdClasses into the appropriate Nested DTOs */
     public function testWillConvertStdClassesIntoTheAppropriateNestedDTOs()
     {
-        $myDTO = (object)[
+        $myDTO = (object) [
             'name' => 'PHP Experts, Inc.',
-            'age' => 7.2,
+            'age'  => 7.2,
             'year' => 2012,
         ];
 
@@ -166,7 +166,7 @@ final class NestedDTOTest extends TestCase
         $expected = [
             'myDTO' => [
                 'name' => 'PHP Experts, Inc.',
-                'age' => 7.2,
+                'age'  => 7.2,
                 'year' => 2012,
             ],
         ];
@@ -179,9 +179,9 @@ final class NestedDTOTest extends TestCase
     {
         try {
             $myDTOInfo = [
-                'name' => 'PHP Experts, Inc.',
-                'age' => null,
-                'year' => '2019',
+                'name'  => 'PHP Experts, Inc.',
+                'age'   => null,
+                'year'  => '2019',
                 'extra' => true,
             ];
         } catch (InvalidDataTypeException $e) {
@@ -196,9 +196,9 @@ final class NestedDTOTest extends TestCase
 
         $expected = [
             'myDTO' => [
-                'name' => 'PHP Experts, Inc.',
-                'age' => null,
-                'year' => '2019',
+                'name'  => 'PHP Experts, Inc.',
+                'age'   => null,
+                'year'  => '2019',
                 'extra' => true,
             ],
         ];
@@ -211,7 +211,7 @@ final class NestedDTOTest extends TestCase
     {
         $myDTO = new MyTestDTO([
             'name' => 'PHP Experts, Inc.',
-            'age' => 7.01,
+            'age'  => 7.01,
             'year' => 2019,
         ]);
 
@@ -232,9 +232,9 @@ final class NestedDTOTest extends TestCase
     /** @testdox Optional, unregistered, Nested DTOs are handled gracefully */
     public function testOptionalUnregisteredNestedDTOsAreHandledGracefully()
     {
-        $myDTO = (object)[
+        $myDTO = (object) [
             'name' => 'PHP Experts, Inc.',
-            'age' => 7.01,
+            'age'  => 7.01,
             'year' => 2019,
         ];
 
@@ -247,19 +247,19 @@ final class NestedDTOTest extends TestCase
         $expectedArray = [
             'myDTO' => [
                 'name' => 'PHP Experts, Inc.',
-                'age' => 7.01,
+                'age'  => 7.01,
                 'year' => 2019,
             ],
             'extra' => [
                 'name' => 'PHP Experts, Inc.',
-                'age' => 7.01,
+                'age'  => 7.01,
                 'year' => 2019,
             ],
         ];
 
-        $expectedObject = (object)[
+        $expectedObject = (object) [
             'name' => 'PHP Experts, Inc.',
-            'age' => 7.01,
+            'age'  => 7.01,
             'year' => 2019,
         ];
 
@@ -315,13 +315,12 @@ JSON;
     }
 
     /**
-     * @param SimpleDTO $origDTO
      * @depends testCanBeSerialized
      */
     public function testCanBeUnserialized(SimpleDTO $origDTO)
     {
         $serializedJSON = sprintf(
-            "%s%s}",
+            '%s%s}',
             'C:42:"PHPExperts\SimpleDTO\Tests\MyNestedTestDTO":428:{',
             $this->getSerializedDTO()
         );

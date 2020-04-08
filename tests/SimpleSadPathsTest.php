@@ -3,11 +3,11 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019 PHP Experts, Inc.
+ * Copyright © 2019-2020 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
- *  GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
- *  https://www.phpexperts.pro/
- *  https://github.com/phpexpertsinc/SimpleDTO
+ *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
+ *   https://www.phpexperts.pro/
+ *   https://github.com/PHPExpertsInc/SimpleDTO
  *
  * This file is licensed under the MIT License.
  */
@@ -32,8 +32,7 @@ final class SimpleSadPathsTest extends TestCase
                 'nonexistant' => true,
             ]);
             $this->fail('A DTO with an undefined property was created.');
-        }
-        catch (Error $e) {
+        } catch (Error $e) {
             self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$nonexistant.', $e->getMessage());
         }
     }
@@ -48,8 +47,7 @@ final class SimpleSadPathsTest extends TestCase
 
             $dto->doesntExist;
             $this->fail('A non-existing property was accessed.');
-        }
-        catch (Error $e) {
+        } catch (Error $e) {
             self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$doesntExist.', $e->getMessage());
         }
     }
