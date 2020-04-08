@@ -81,13 +81,13 @@ abstract class NestedDTO extends SimpleDTO implements JsonSerializable, Serializ
     }
 
     /**
-     * @param string     $dtoClass
-     * @param mixed      $value
-     * @param array|null $options
-     * @param string     $property
+     * @param string|object $dtoClass
+     * @param mixed         $value
+     * @param array|null    $options
+     * @param string        $property
      * @return SimpleDTO|null
      */
-    private function convertToDTO(string $dtoClass, $value, ?array $options, string $property): ?SimpleDTO
+    private function convertToDTO($dtoClass, $value, ?array $options, string $property): ?SimpleDTO
     {
         $assertIsAnArray = function ($newValue, string $property): void {
             if (is_array($newValue)) {
@@ -190,7 +190,7 @@ abstract class NestedDTO extends SimpleDTO implements JsonSerializable, Serializ
      */
     public function serialize()
     {
-        $output = json_decode(parent::serialize(), true);
+        $output = json_decode((string) parent::serialize(), true);
         $output['DTOs'] = $this->DTOs;
 
         return json_encode($output, JSON_PRETTY_PRINT);
