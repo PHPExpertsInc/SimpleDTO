@@ -196,7 +196,7 @@ abstract class SimpleDTO implements SimpleDTOContract
             throw new \LogicException('No DTO class property docblocks have been added.');
         }
 
-        preg_match_all('/@property(-read)* (.*?)\n/s', $properties, $annotations);
+        preg_match_all('/@property(-read)* (.*?)\r?\n/s', $properties, $annotations);
 
         if (empty($annotations[2])) {
             throw new \LogicException('No DTO class property docblocks have been added.');
