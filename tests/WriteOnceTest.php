@@ -105,7 +105,7 @@ JSON;
             $writeOnceDTO->toArray();
             self::fail('Did not invalidate an invalid WriteOnce DTO when toArray() was called.');
         } catch (InvalidDataTypeException $e) {
-            $this->assertEquals($expected, $e->getReasons());
+            self::assertEquals($expected, $e->getReasons());
         }
     }
 
