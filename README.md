@@ -1,6 +1,6 @@
 # SimpleDTO
 
-[![TravisCI](https://travis-ci.org/phpexpertsinc/SimpleDTO.svg?branch=master)](https://travis-ci.org/phpexpertsinc/SimpleDTO)
+[![TravisCI](https://travis-ci.com/phpexpertsinc/SimpleDTO.svg?branch=master)](https://travis-ci.com/phpexpertsinc/SimpleDTO)
 [![Maintainability](https://api.codeclimate.com/v1/badges/503cba0c53eb262c947a/maintainability)](https://codeclimate.com/github/phpexpertsinc/SimpleDTO/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/503cba0c53eb262c947a/test_coverage)](https://codeclimate.com/github/phpexpertsinc/SimpleDTO/test_coverage)
 
