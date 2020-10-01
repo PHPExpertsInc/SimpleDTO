@@ -36,7 +36,10 @@
     "autoload": {
         "psr-4": {
             "PHPExperts\\SimpleDTO\\" : "src/"
-        }
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": { "PHPExperts\\SimpleDTO\\Tests\\" : "tests/" }
