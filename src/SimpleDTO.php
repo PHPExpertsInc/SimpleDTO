@@ -325,7 +325,7 @@ abstract class SimpleDTO implements SimpleDTOContract
         };
 
         if (is_object($value)) {
-            if (is_callable([$value, 'toArray']) && !($value instanceof Carbon)) {
+            if (method_exists($value, 'toArray') && !($value instanceof Carbon)) {
                 return $value->toArray();
             }
 
