@@ -28,21 +28,26 @@ abstract class SimpleDTO implements SimpleDTOContract
     public const ALLOW_NULL = 102;
     public const ALLOW_EXTRA = 103;
 
-    /** @var array */
+    /** @var mixed[] */
     private $options;
 
     /** @var DataTypeValidator */
     private $validator;
 
-    /** @var array */
+    /** @var mixed[] */
     private $dataTypeRules = [];
 
-    /** @var array */
+    /** @var mixed[] */
     private $origDataTypeRules = [];
 
-    /** @var array */
+    /** @var mixed[] */
     private $data = [];
 
+    /**
+     * @param mixed[]                $input
+     * @param mixed[]                $options
+     * @param DataTypeValidator|null $validator
+     */
     public function __construct(array $input, array $options = [], DataTypeValidator $validator = null)
     {
         $this->options = $options;
@@ -83,10 +88,10 @@ abstract class SimpleDTO implements SimpleDTOContract
     }
 
     /**
-     * @param array  $input
-     * @param string $ifThis
-     * @param mixed  $specialValue
-     * @param string $thenThat
+     * @param mixed[] $input
+     * @param string  $ifThis
+     * @param mixed   $specialValue
+     * @param string  $thenThat
      */
     protected function ifThisThenThat(array $input, string $ifThis, $specialValue, string $thenThat): void
     {
@@ -116,6 +121,10 @@ abstract class SimpleDTO implements SimpleDTOContract
         }
     }
 
+    /**
+     * @param mixed[] $input
+     * @return void
+     */
     private function spliceInDefaultValues(array &$input): void
     {
         $new = [];
@@ -132,6 +141,11 @@ abstract class SimpleDTO implements SimpleDTOContract
         $input = $new;
     }
 
+    /**
+     * @param mixed[] $input
+     * @return void
+     * @throws \ReflectionException
+     */
     private function loadDynamicProperties(array $input): void
     {
         $this->loadDynamicDTORules();
@@ -167,7 +181,7 @@ abstract class SimpleDTO implements SimpleDTOContract
     /**
      * This is just a placeholder so that child classes can override it.
      *
-     * @param array $input
+     * @param mixed[] $input
      * @return void
      */
     protected function extraValidation(array $input)
@@ -175,7 +189,7 @@ abstract class SimpleDTO implements SimpleDTOContract
     }
 
     /**
-     * @param array $input
+     * @param mixed[] $input
      * @return void
      */
     private function validateInputs(array $input): void
@@ -221,12 +235,16 @@ abstract class SimpleDTO implements SimpleDTOContract
             $nullTokenPos = $expectedType[0] === '?' ? 1 : 5;
 
             // Then strip it out of the expected type.
-            $expectedType = substr($expectedType, $nullTokenPos ?? 1);
+            $expectedType = substr($expectedType, $nullTokenPos);
         }
 
         return $expectedType;
     }
 
+    /**
+     * @param mixed[] $input
+     * @return void
+     */
     private function processCarbonProperties(array &$input): void
     {
         foreach ($this->dataTypeRules as $property => &$expectedType) {
@@ -306,7 +324,7 @@ abstract class SimpleDTO implements SimpleDTOContract
      * Even arrays of objects.
      *
      * @param mixed $value
-     * @return array|null
+     * @return mixed[]|null
      */
     protected function convertValueToArray($value): ?array
     {
@@ -387,15 +405,15 @@ abstract class SimpleDTO implements SimpleDTOContract
         $this->loadConcreteProperties();
         $this->data = $input['data'];
     }
-    
+
         /**
          * Returns all traits used by a class, its parent classes and trait of their traits.
          * Copyright (c) 2018 Taylor Otwell
          *
          * @param  object|string  $class
-         * @return array
+         * @return mixed[]
          */
-        private function class_uses_recursive($class)
+        private function class_uses_recursive($class): array
         {
             if (is_object($class)) {
                 $class = get_class($class);
@@ -403,7 +421,12 @@ abstract class SimpleDTO implements SimpleDTOContract
 
             $results = [];
 
-            foreach (array_reverse(class_parents($class)) + [$class => $class] as $class) {
+            $parentClasses = class_parents($class);
+            if ($parentClasses === false) {
+                $parentClasses = [];
+            }
+
+            foreach (array_reverse($parentClasses) + [$class => $class] as $class) {
                 $results += $this->trait_uses_recursive($class);
             }
 
@@ -415,11 +438,14 @@ abstract class SimpleDTO implements SimpleDTOContract
          * Copyright (c) 2018 Taylor Otwell
          *
          * @param  string  $trait
-         * @return array
+         * @return mixed[]
          */
-        private function trait_uses_recursive($trait)
+        private function trait_uses_recursive($trait): array
         {
             $traits = class_uses($trait);
+            if ($traits === false) {
+                $traits = [];
+            }
 
             foreach ($traits as $trait) {
                 $traits += $this->trait_uses_recursive($trait);

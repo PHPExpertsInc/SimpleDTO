@@ -20,6 +20,8 @@ use Serializable;
 interface SimpleDTOContract extends JsonSerializable, Serializable
 {
     public function isPermissive(): bool;
+
+    /** @return mixed[] */
     public function getData(): array;
     public function validate(): void;
     public function __isset(string $property): bool;
@@ -35,7 +37,11 @@ interface SimpleDTOContract extends JsonSerializable, Serializable
      * @param mixed  $value
      */
     public function __set(string $property, $value): void;
+
+    /** @return mixed[] */
     public function toArray(): array;
+
+    /** @return mixed[] */
     public function jsonSerialize(): array;
 
     /**
