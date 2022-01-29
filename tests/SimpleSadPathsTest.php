@@ -204,7 +204,7 @@ JSON;
         try {
             $overwriteDTO->overwiteTest();
         } catch (Error $e) {
-            $this->assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$doesntExist.', $e->getMessage());
+            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$doesntExist.', $e->getMessage());
         }
     }
 }

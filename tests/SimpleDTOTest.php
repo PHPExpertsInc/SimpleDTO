@@ -26,7 +26,7 @@ final class SimpleDTOTest extends TestCase
     /** @var SimpleDTO */
     private $dto;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->dto = new MyTestDTO([
             'name' => 'World',
@@ -44,7 +44,7 @@ final class SimpleDTOTest extends TestCase
 
     public function testPropertiesAreAccessedAsPublicProperties()
     {
-        $this->assertEquals('World', $this->dto->name);
+        self::assertEquals('World', $this->dto->name);
     }
 
     /** @testdox Public, private and static protected properties will be ignored  */
@@ -85,7 +85,7 @@ final class SimpleDTOTest extends TestCase
             $this->dto->name = 'asdf';
             $this->fail('Setting a property did not throw an error.');
         } catch (Error $e) {
-            $this->assertEquals(
+            self::assertEquals(
                 'SimpleDTOs are immutable. Create a new one to set a new value.',
                 $e->getMessage()
             );
@@ -144,7 +144,7 @@ final class SimpleDTOTest extends TestCase
         $expected = '{"name":"9\/11","remember":"2001-09-11T13:46:00.000000Z"}';
         $dateDTO = $this->buildDateDTO();
 
-        $this->assertEquals($expected, json_encode($dateDTO));
+        self::assertEquals($expected, json_encode($dateDTO));
     }
 
     public function testCanEasilyBeJsonDecoded()
