@@ -172,6 +172,9 @@ PHPExperts\SimpleDTO\SimpleDTO
  ✔ Can be serialized  
  ✔ Can be unserialized  
  ✔ Extra validation can be added  
+ ✔ Can get the internal data
+ ✔ Can identify if it is permissive or not
+
 
 PHPExperts\SimpleDTO\NestedDTO  
  ✔ Will construct nested DTOs  
@@ -183,6 +186,7 @@ PHPExperts\SimpleDTO\NestedDTO
  ✔ Optional, unregistered, Nested DTOs are handled gracefully  
  ✔ Can be serialized  
  ✔ Can be unserialized  
+ ✔ Can get the internal data
 
 PHPExperts\SimpleDTO\WriteOnceTrait  
  ✔ Can accept null values  

@@ -313,4 +313,21 @@ JSON;
         self::assertSame(37.426, $dto->age);
         self::assertSame($expected, $dto->toArray());
     }
+
+    public function testCanGetTheInternalData()
+    {
+        $dateDTO = $this->buildDateDTO();
+        $expected = [
+            'name' => '9/11',
+            'remember' => Carbon::parse('2001-09-11 8:46 EST'),
+        ];
+
+        self::assertEquals($expected, $dateDTO->getData());
+    }
+
+    public function testCanIdentifyIfItIsPermissiveOrNot()
+    {
+        $dateDTO = $this->buildDateDTO();
+        self::assertFalse($dateDTO->isPermissive());
+    }
 }

@@ -412,6 +412,8 @@ abstract class SimpleDTO implements SimpleDTOContract
          *
          * @param  object|string  $class
          * @return mixed[]
+         *
+         * @codeCoverageIgnore
          */
         private function class_uses_recursive($class): array
         {
@@ -439,6 +441,8 @@ abstract class SimpleDTO implements SimpleDTOContract
          *
          * @param  string  $trait
          * @return mixed[]
+         *
+         * @codeCoverageIgnore
          */
         private function trait_uses_recursive($trait): array
         {

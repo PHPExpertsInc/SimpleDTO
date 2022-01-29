@@ -338,4 +338,19 @@ JSON;
         $nestedDTO->validate();
         self::assertTrue(true, 'This is a meaningless test by itself.');
     }
+
+    public function testCanGetTheInternalData()
+    {
+        $nestedDTO = $this->buildNestedDTO();
+        $expected = [
+            'name'  => 'Nested',
+            'myDTO' => new MyTestDTO([
+                'name' => 'PHP Experts, Inc.',
+                'age'  => 7.01,
+                'year' => 2019,
+            ])
+        ];
+
+        self::assertEquals($expected, $nestedDTO->getData());
+    }
 }
