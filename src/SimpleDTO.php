@@ -54,7 +54,7 @@ abstract class SimpleDTO implements SimpleDTOContract
         $this->validator = $validator;
 
         // WriteOnce trait needs to allow nullables.
-        if (in_array(WriteOnce::class, class_uses_recursive($this))) {
+        if (in_array(WriteOnce::class, $this->class_uses_recursive($this))) {
             $this->options[] = self::ALLOW_NULL;
         }
 
@@ -387,4 +387,44 @@ abstract class SimpleDTO implements SimpleDTOContract
         $this->loadConcreteProperties();
         $this->data = $input['data'];
     }
+    
+        /**
+         * Returns all traits used by a class, its parent classes and trait of their traits.
+         * Copyright (c) 2018 Taylor Otwell
+         *
+         * @param  object|string  $class
+         * @return array
+         */
+        private function class_uses_recursive($class)
+        {
+            if (is_object($class)) {
+                $class = get_class($class);
+            }
+
+            $results = [];
+
+            foreach (array_reverse(class_parents($class)) + [$class => $class] as $class) {
+                $results += $this->trait_uses_recursive($class);
+            }
+
+            return array_unique($results);
+        }
+
+        /**
+         * Returns all traits used by a trait and its traits.
+         * Copyright (c) 2018 Taylor Otwell
+         *
+         * @param  string  $trait
+         * @return array
+         */
+        private function trait_uses_recursive($trait)
+        {
+            $traits = class_uses($trait);
+
+            foreach ($traits as $trait) {
+                $traits += $this->trait_uses_recursive($trait);
+            }
+
+            return $traits;
+        }
 }
