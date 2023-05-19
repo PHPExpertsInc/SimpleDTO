@@ -198,7 +198,7 @@ PHPExperts\SimpleDTO\WriteOnceTrait
 SimpleDTO Sad Paths  
  ✔ Cannot initialize with a nonexisting property  
  ✔ Accessing a nonexisting property throws an error  
- ✔ A DTO must have class property docblocks for each concrete property  
+ ✔ A DTO must have class property docblocks -or- typehint for each concrete property  
  ✔ Carbon date strings must be parsable dates  
  ✔ Properties must match their data types  
  ✔ Will not unserialize DTOs with invalid data  
