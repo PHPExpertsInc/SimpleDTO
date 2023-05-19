@@ -1,16 +1,21 @@
+## v3.0.0
+
+* **[2023-05-19 05:27:12 CST]** Added support for using PHP 7.4+ typed properties instead of docblocks.
+* **[2023-02-18 04:05:30 CST]** Added a proper CHANGELOG.
+
 ## v2.6.0
 
-* **[2022-01-28 20:53:26 CDT]** Merge pull request #9 from andrew-demb/patch-1 HEAD -> master, tag: v2.6.0, upstream/master, upstream/HEAD, origin/master
-* **[2022-01-28 20:49:47 CDT]** Merge pull request #17 from open-source-contributions/test_enhancement
+* **[2022-01-28 20:53:26 CST]** Merge pull request #9 from andrew-demb/patch-1 HEAD -> master, tag: v2.6.0, upstream/master, upstream/HEAD, origin/master
+* **[2022-01-28 20:49:47 CST]** Merge pull request #17 from open-source-contributions/test_enhancement
 * **[2020-07-28 19:04:44 CDT]** 0d384ab N 2020-07-28 19:04:44 +0800 peter279k           Test enhancement
-* **[2022-01-28 20:48:35 CDT]** Merge pull request #16 from apolitano1/patch-1
+* **[2022-01-28 20:48:35 CST]** Merge pull request #16 from apolitano1/patch-1
 * **[2020-05-04 07:25:49 CDT]** @CRLF in doc-block instead of strict @LF
-* **[2022-01-28 20:45:12 CDT]** Added more test code coverage.
-* **[2022-01-28 20:27:40 CDT]** Fixed phpstan errors up to level 6.
-* **[2022-01-28 19:13:38 CDT]** Use the latest phpexperts/dockerize.
-* **[2022-01-28 19:12:22 CDT]** Removed an extraneous dependency on the Laravel env polyfill.
-* **[2022-01-28 18:52:46 CDT]** Merge pull request #20 from ametad/fix-classes-with-_call-to-array
-* **[2022-01-12 10:37:31 CDT]** `toArray` also compatible with `__call` implementations
+* **[2022-01-28 20:45:12 CST]** Added more test code coverage.
+* **[2022-01-28 20:27:40 CST]** Fixed phpstan errors up to level 6.
+* **[2022-01-28 19:13:38 CST]** Use the latest phpexperts/dockerize.
+* **[2022-01-28 19:12:22 CST]** Removed an extraneous dependency on the Laravel env polyfill.
+* **[2022-01-28 18:52:46 CST]** Merge pull request #20 from ametad/fix-classes-with-_call-to-array
+* **[2022-01-12 10:37:31 CST]** `toArray` also compatible with `__call` implementations
 * **[2020-09-23 14:57:12 CDT]** [m] Migrated the project to Travis-CI.com.
 
 ## v2.5.0
