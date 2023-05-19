@@ -52,7 +52,7 @@ final class SimpleSadPathsTest extends TestCase
         }
     }
 
-    /** @testdox A DTO must have class property docblocks for each concrete property */
+    /** @testdox A DTO must have class property docblocks -or- typehint for each concrete property */
     public function testADTOMustHaveClassPropertyDocblocksForEachConcreteProperty()
     {
         try {
@@ -61,9 +61,9 @@ final class SimpleSadPathsTest extends TestCase
                 protected $name;
             };
 
-            $this->fail('A DTO with no class docblock was created.');
+            $this->fail('A DTO with no class docblock nor typehint was created.');
         } catch (LogicException $e) {
-            self::assertEquals('No DTO class property docblocks have been added.', $e->getMessage());
+            self::assertEquals('There must be either a class-level docblock or typehint for $name.', $e->getMessage());
         }
 
         try {
@@ -78,7 +78,7 @@ final class SimpleSadPathsTest extends TestCase
 
             $this->fail('A DTO with no class property docblocks was created.');
         } catch (LogicException $e) {
-            self::assertEquals('No DTO class property docblocks have been added.', $e->getMessage());
+            self::assertEquals('No DTO class property docblocks nor typehints have been added.', $e->getMessage());
         }
 
         try {
@@ -112,7 +112,7 @@ final class SimpleSadPathsTest extends TestCase
 
             $this->fail('A DTO with a missing class property docblock was created.');
         } catch (LogicException $e) {
-            self::assertEquals('You need class-level docblocks for $age.', $e->getMessage());
+            self::assertEquals('There must be either a class-level docblock or typehint for $age.', $e->getMessage());
         }
     }
 

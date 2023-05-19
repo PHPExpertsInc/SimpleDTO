@@ -63,7 +63,7 @@ abstract class SimpleDTO implements SimpleDTOContract
             $this->options[] = self::ALLOW_NULL;
         }
 
-        $this->loadConcreteProperties();
+        $this->loadConcreteProperties($input);
 
         // Add in default values if they're missing.
         $this->spliceInDefaultValues($input);
@@ -104,7 +104,10 @@ abstract class SimpleDTO implements SimpleDTOContract
         }
     }
 
-    private function loadConcreteProperties(): void
+    /**
+     * @param mixed[] $input
+     */
+    private function loadConcreteProperties(array $input): void
     {
         $properties = (new ReflectionClass($this))->getProperties(\ReflectionProperty::IS_PROTECTED);
         foreach ($properties as $property) {
@@ -112,9 +115,23 @@ abstract class SimpleDTO implements SimpleDTOContract
                 continue;
             }
 
-            // Store the properties' default values.
             $propertyName = $property->getName();
-            $this->data[$propertyName] = $this->$propertyName;
+
+            if (empty($input[$propertyName])) {
+                if ($property->hasDefaultValue()) {
+                    // Store the properties' default values.
+                    $this->data[$propertyName] = $this->$propertyName;
+                }
+            } else {
+                $this->data[$propertyName] = $input[$propertyName];
+            }
+
+            // Needed for PHP 7.2 support.
+            if (method_exists($property, 'hasType')) {
+                if ($property->hasType()) {
+                    $this->dataTypeRules[$propertyName] = $property->getType()->getName();
+                }
+            }
 
             // Unset the property to mitigate shenanigans.
             unset($this->$propertyName);
@@ -123,7 +140,6 @@ abstract class SimpleDTO implements SimpleDTOContract
 
     /**
      * @param mixed[] $input
-     * @return void
      */
     private function spliceInDefaultValues(array &$input): void
     {
@@ -153,7 +169,7 @@ abstract class SimpleDTO implements SimpleDTOContract
         $rulesDiff = array_diff_key($this->data, $this->dataTypeRules);
         if (!empty($rulesDiff)) {
             throw new \LogicException(
-                'You need class-level docblocks for $' . implode(', $', array_keys($rulesDiff)) . '.'
+                'There must be either a class-level docblock or typehint for $' . implode(', $', array_keys($rulesDiff)) . '.'
             );
         }
 
@@ -207,13 +223,14 @@ abstract class SimpleDTO implements SimpleDTOContract
     {
         $properties = (new ReflectionClass($this))->getDocComment();
         if (!$properties) {
-            throw new \LogicException('No DTO class property docblocks have been added.');
+            //throw new \LogicException('No DTO class property docblocks have been added.');
+            return;
         }
 
         preg_match_all('/@property(-read)* (.*?)\r?\n/s', $properties, $annotations);
 
         if (empty($annotations[2])) {
-            throw new \LogicException('No DTO class property docblocks have been added.');
+            throw new \LogicException('No DTO class property docblocks nor typehints have been added.');
         }
 
         /** @var string $annotation */
@@ -402,7 +419,7 @@ abstract class SimpleDTO implements SimpleDTOContract
         $this->options = $input['options'];
         $this->validator->validate($input['data'], $input['dataRules']);
         $this->dataTypeRules = $input['dataRules'];
-        $this->loadConcreteProperties();
+        $this->loadConcreteProperties($input);
         $this->data = $input['data'];
     }
 
