@@ -118,17 +118,32 @@ abstract class SimpleDTO implements SimpleDTOContract
             $propertyName = $property->getName();
 
             if (empty($input[$propertyName])) {
-                if ($property->hasDefaultValue()) {
-                    // Store the properties' default values.
-                    $this->data[$propertyName] = $this->$propertyName;
+                if (method_exists($property, 'hasDefaultValue')) {
+                    if ($property->hasDefaultValue()) {
+                        // Store the properties' default values.
+                        $this->data[$propertyName] = $this->$propertyName;
+                    }
+                } else {
+                    // @codeCoverageIgnoreStart
+                    // This is needed for PHP 7.4 and earlier support.
+                    if (property_exists($this, $propertyName)) {
+                        if (isset($this->$propertyName)) {
+                            // This is only run in PHP v8.0 and earlier.
+                            $this->data[$propertyName] = $this->$propertyName;
+                        } else {
+                            // This is only run in PHP 7.4.
+                            $this->data[$propertyName] = null;
+                        }
+                    }
+                    // @codeCoverageIgnoreEnd
                 }
             } else {
                 $this->data[$propertyName] = $input[$propertyName];
             }
 
             // Needed for PHP 7.2 support.
-            if (method_exists($property, 'hasType')) {
-                if ($property->hasType()) {
+            if (method_exists($property, 'hasType') && $property->hasType()) {
+                if (method_exists($property, 'getType')) {
                     $this->dataTypeRules[$propertyName] = $property->getType()->getName();
                 }
             }
