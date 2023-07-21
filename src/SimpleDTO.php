@@ -434,6 +434,7 @@ abstract class SimpleDTO implements SimpleDTOContract
         $this->options = $input['options'];
         $this->validator->validate($input['data'], $input['dataRules']);
         $this->dataTypeRules = $input['dataRules'];
+        $this->origDataTypeRules = $this->dataTypeRules;
         $this->loadConcreteProperties($input);
         $this->data = $input['data'];
     }
