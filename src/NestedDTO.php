@@ -194,7 +194,16 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
         $this->DTOs = $DTOs;
         $input = $this->convertPropertiesToDTOs($input, $options);
 
-        parent::__construct($input, $options, $validator);
+        try {
+            parent::__construct($input, $options, $validator);
+        } catch (InvalidDataTypeException $e) {
+            throw new InvalidDataTypeException(
+                $e->getMessage() . ' ' . implode(', ', $e->getReasons()),
+                $e->getReasons(),
+                0,
+                $e
+            );
+        }
 
         $this->data = $input;
     }
