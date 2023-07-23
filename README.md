@@ -159,33 +159,37 @@ You can nest DTOs inside of each other.
 PHPExperts\SimpleDTO\SimpleDTO  
  ✔ Properties are set via the constructor  
  ✔ Properties are accessed as public properties  
+ ✔ Constructor assigns default values of typed properties  
  ✔ Public, private and static protected properties will be ignored  
  ✔ Each DTO is immutable  
  ✔ Setting any property returns an exception  
  ✔ Concrete properties can be used to set default values  
  ✔ Properties with the type carbon become carbon dates  
  ✔ Can easily output to array  
- ✔ Can easily be json encoded  
- ✔ Can easily be json decoded  
+ ✔ Can easily be JSON encoded  
+ ✔ Can easily be JSON decoded  
  ✔ Nullable properties are allowed  
  ✔ Every property is nullable with permissive mode  
  ✔ Can be serialized  
  ✔ Can be unserialized  
  ✔ Extra validation can be added  
- ✔ Can get the internal data
+ ✔ Can get the internal data  
  ✔ Can identify if it is permissive or not
-
 
 PHPExperts\SimpleDTO\NestedDTO  
  ✔ Will construct nested DTOs  
  ✔ Can construct arrays of nested DTOs  
- ✔ Will convert arrays into the appropriate Nested DTOs  
+ ✔ Can retrieve the stored DTOs.  
+ ✔ Will convert array data into the appropriate Nested DTOs  
  ✔ Will convert stdClasses into the appropriate Nested DTOs  
  ✔ Nested DTOs use Loose typing  
+ ✔ Nested DTOs can be built using Typed Properties  
+ ✔ Nested DTOs with Typed Properties use Strict typing  
  ✔ All registered Nested DTOs are required  
  ✔ Optional, unregistered, Nested DTOs are handled gracefully  
  ✔ Can be serialized  
  ✔ Can be unserialized  
+ ✔ Can validate the DTO manually  
  ✔ Can get the internal data
 
 PHPExperts\SimpleDTO\WriteOnceTrait  

@@ -1,3 +1,14 @@
+## v3.5.0
+
+* **[2023-07-22 22:40:34 CDT]** Added support for nullable concrete typed properties. HEAD -> v3.5, upstream/v3.5, origin/v3.5
+* **[2023-07-22 22:23:23 CDT]** Added full tests for testing Permissive DTOs.
+* **[2023-07-22 22:20:39 CDT]** ChatGPT-created unit tests.
+* **[2023-07-21 04:58:57 CDT]** Fixed an edgecase where unserialized SimpleDTOs did not exactly match their original pre-serialized object.
+* **[2023-07-21 04:58:04 CDT]** Fixed broken PHP 7.2 and 7.3 support.
+* **[2023-07-21 04:56:30 CDT]** Throw a properly-detailed InvalidDataTypeException on malformed NestedDTO.
+* **[2023-07-20 20:07:02 CDT]** Upgraded to PHPUnit v10 and created a system for supporting individual phpunit.xml for each PHPUnit version.
+* **[2023-07-20 20:05:41 CDT]** Added a test runner for each version of PHP.
+
 ## v3.0.0
 
 * **[2023-05-19 05:27:12 CST]** Added support for using PHP 7.4+ typed properties instead of docblocks.
