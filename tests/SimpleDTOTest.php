@@ -16,6 +16,7 @@ namespace PHPExperts\SimpleDTO\Tests;
 
 use Carbon\Carbon;
 use Error;
+use LogicException;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
@@ -188,28 +189,55 @@ final class SimpleDTOTest extends TestCase
     /** @test Every property is nullable with Permissive Move */
     public function testEveryPropertyIsNullableWithPermissiveMode()
     {
-        $info = ['firstName' => 'Cheyenne', 'lastName' => null, 'age' => null, 'height' => null];
+        $testNonNullabbleWithNulls = function () {
+            $info = ['firstName' => 'Nataly', 'lastName' => null, 'age' => null, 'height' => null];
 
-        /**
-         * Every public and private property is ignored, as are static protected ones.
-         *
-         * @property string $firstName
-         * @property string $lastName
-         * @property int $age
-         * @property float $height
-         */
-        $dto = new class($info, [SimpleDTO::PERMISSIVE]) extends SimpleDTO
-        {
+            /**
+             * Every public and private property is ignored, as are static protected ones.
+             *
+             * @property string $firstName
+             * @property string $lastName
+             * @property int    $age
+             * @property float  $height
+             */
+            $dto = new class($info, [SimpleDTO::PERMISSIVE]) extends SimpleDTO {
+            };
+
+            $expected = [
+                'firstName' => 'Nataly',
+                'lastName'  => null,
+                'age'       => null,
+                'height'    => null,
+            ];
+
+            self::assertSame($expected, $dto->toArray());
         };
+        $testNonNullabbleWithNulls();
 
-        $expected = [
-            'firstName' => 'Cheyenne',
-            'lastName'  => null,
-            'age'       => null,
-            'height'    => null,
-        ];
+        $testNullabbleWithNulls = function () {
+            $info = ['firstName' => 'Nataly', 'lastName' => null, 'age' => null, 'height' => null];
 
-        self::assertSame($expected, $dto->toArray());
+            /**
+             * Every public and private property is ignored, as are static protected ones.
+             *
+             * @property ?string $firstName
+             * @property ?string $lastName
+             * @property ?int    $age
+             * @property ?float  $height
+             */
+            $dto = new class($info, [SimpleDTO::PERMISSIVE]) extends SimpleDTO {
+            };
+
+            $expected = [
+                'firstName' => 'Nataly',
+                'lastName'  => null,
+                'age'       => null,
+                'height'    => null,
+            ];
+
+            self::assertSame($expected, $dto->toArray());
+        };
+        $testNullabbleWithNulls();
     }
 
     private function getSerializedDTO(): string
@@ -329,5 +357,83 @@ JSON;
     {
         $dateDTO = $this->buildDateDTO();
         self::assertFalse($dateDTO->isPermissive());
+    }
+
+    /**
+     * @dataProvider provideTestCases
+     */
+    public function testConvertValueToArray($input, $expected)
+    {
+        $dto = new class([], []) extends SimpleDTO {};
+
+        $reflection = new \ReflectionClass($dto);
+        $method = $reflection->getMethod('convertValueToArray');
+        $method->setAccessible(true);
+
+        $output = $method->invokeArgs($dto, [$input]);
+        self::assertEquals($expected, $output);
+    }
+
+    public static function provideTestCases()
+    {
+        return [
+            // An array with values that aren't objects.
+            [[1, 2, 3], null],
+
+            // An array with values that are objects.
+            [[new ArrayableObject([1, 2, 3])], [[1, 2, 3]]],
+
+            // An object that has a `toArray()` method.
+            [new ArrayableObject([1, 2, 3]), [1, 2, 3]],
+
+            // An instance of the `stdClass` class.
+            [(object) ['a' => 1], ['a' => 1]],
+
+            // An instance of the `Carbon` class.
+            [Carbon::now(), null],
+
+            // A value that is not an array or an object.
+            [1, null],
+        ];
+    }
+
+    public function testConstructorAssignsDefaultValues()
+    {
+        // Test a property that does not have a value in the input but has a default value.
+        $dto = new class([], []) extends SimpleDTO {
+            protected string $name = 'default name';
+        };
+        self::assertEquals(['name' => 'default name'], $dto->toArray());
+
+        // Test a property that does not have a value in the input and does not have a default value.
+        try {
+            $dto = new class(['name' => null], []) extends SimpleDTO {
+                protected ?string $name;
+            };
+            self::assertEquals(['name' => null], $dto->toArray());
+        } catch (InvalidDataTypeException $e) {
+            dd($e->getReasons());
+        }
+
+        // Test a property that has a value in the input.
+        $dto = new class(['name' => 'input name'], []) extends SimpleDTO {
+            protected string $name;
+        };
+        self::assertEquals(['name' => 'input name'], $dto->toArray());
+    }
+}
+
+class ArrayableObject
+{
+    private $data;
+
+    public function __construct(array $data)
+    {
+        $this->data = $data;
+    }
+
+    public function toArray()
+    {
+        return $this->data;
     }
 }

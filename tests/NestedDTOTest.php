@@ -18,6 +18,7 @@ use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
+use Reflection;
 
 /** @testdox PHPExperts\SimpleDTO\NestedDTO */
 final class NestedDTOTest extends TestCase
@@ -177,16 +178,12 @@ final class NestedDTOTest extends TestCase
     /** @testdox Nested DTOs use Loose typing */
     public function testNestedDTOsUseLooseTyping()
     {
-        try {
-            $myDTOInfo = [
-                'name'  => 'PHP Experts, Inc.',
-                'age'   => null,
-                'year'  => '2019',
-                'extra' => true,
-            ];
-        } catch (InvalidDataTypeException $e) {
-            dd($e->getReasons());
-        }
+        $myDTOInfo = [
+            'name'  => 'PHP Experts, Inc.',
+            'age'   => null,
+            'year'  => '2019',
+            'extra' => true,
+        ];
 
         /**
          * @property MyTestDTO $myDTO
@@ -204,6 +201,75 @@ final class NestedDTOTest extends TestCase
         ];
 
         self::assertSame($expected, $nestedDTO->toArray());
+    }
+
+    /** @testdox Nested DTOs can be built using Typed Properties */
+    public function testNestedDTOsCanBeBuiltUsingTypedProperties()
+    {
+        if (version_compare(phpversion(), '7.4.0', '<')) {
+            self::markTestSkipped('This functionality requires PHP 7.4 or higher.');
+        }
+
+        $myDTOInfo = [
+            'name'  => 'PHP Experts, Inc.',
+            'age'   => 41.58,
+            'year'  => 2019,
+        ];
+        $myTypedPropertyDTO = new MyTypedPropertyTestDTO($myDTOInfo);
+
+        /**
+         * @property MyTypedPropertyTestDTO $myDTO
+         */
+        $nestedDTO = new class(['myDTO' => $myTypedPropertyDTO], ['myDTO' => MyTypedPropertyTestDTO::class]) extends NestedDTO {
+        };
+
+        $expected = [
+            'myDTO' => [
+                'name'  => 'PHP Experts, Inc.',
+                'age'   => 41.58,
+                'year'  => 2019,
+            ],
+        ];
+
+        self::assertSame($expected, $nestedDTO->toArray());
+
+        $actual = unserialize(serialize($myTypedPropertyDTO));
+        self::assertEquals($myTypedPropertyDTO, $actual);
+    }
+
+    /** @testdox Nested DTOs with Typed Properties use Strict typing */
+    public function testNestedDTOsWithTypedPropertiesUseStrictTyping()
+    {
+        if (version_compare(phpversion(), '7.4.0', '<')) {
+            self::markTestSkipped('This functionality requires PHP 7.4 or higher.');
+        }
+
+        // Test with Loose Types
+        try {
+            $myDTOInfo = [
+                'name'  => 'PHP Experts, Inc.',
+                'age'   => null,
+                'year'  => '2019',
+                'extra' => true,
+            ];
+            $myTypedPropertyDTO = new MyTypedPropertyTestDTO($myDTOInfo);
+
+            /**
+             * @property MyTypedPropertyTestDTO $myDTO
+             */
+            $nestedDTO = new class(['myDTO' => $myTypedPropertyDTO], ['myDTO' => MyTypedPropertyTestDTO::class]) extends NestedDTO {
+            };
+
+            self::fail('NestedDTO was built with loose types.');
+        } catch (InvalidDataTypeException $e) {
+            self::assertEquals('There were 2 validation errors.', $e->getMessage());
+            self::assertEquals([
+                    'age'  => 'age is not a valid float',
+                    'year' => 'year is not a valid int',
+                ],
+                $e->getReasons()
+            );
+        }
     }
 
     /** @testdox All registered Nested DTOs are required */
@@ -335,8 +401,12 @@ JSON;
     {
         $nestedDTO = $this->buildNestedDTO();
 
-        $nestedDTO->validate();
-        self::assertTrue(true, 'This is a meaningless test by itself.');
+        try {
+            $nestedDTO->validate();
+            self::assertTrue(true, 'Validated a nested DTO successfully.');
+        } catch (InvalidDataTypeException $e) {
+            self::fail("Failed to validate the nested DTO because: \n* " . implode("\n* ", $e->getReasons()));
+        }
     }
 
     public function testCanGetTheInternalData()

@@ -118,18 +118,34 @@ abstract class SimpleDTO implements SimpleDTOContract
             $propertyName = $property->getName();
 
             if (empty($input[$propertyName])) {
-                if ($property->hasDefaultValue()) {
-                    // Store the properties' default values.
-                    $this->data[$propertyName] = $this->$propertyName;
+                if (method_exists($property, 'hasDefaultValue')) {
+                    if ($property->hasDefaultValue()) {
+                        // Store the properties' default values.
+                        $this->data[$propertyName] = $this->$propertyName;
+                    }
+                } else {
+                    // @codeCoverageIgnoreStart
+                    // This is needed for PHP 7.4 and earlier support.
+                    if (property_exists($this, $propertyName)) {
+                        if (isset($this->$propertyName)) {
+                            // This is only run in PHP v8.0 and earlier.
+                            $this->data[$propertyName] = $this->$propertyName;
+                        } else {
+                            // This is only run in PHP 7.4.
+                            $this->data[$propertyName] = null;
+                        }
+                    }
+                    // @codeCoverageIgnoreEnd
                 }
             } else {
                 $this->data[$propertyName] = $input[$propertyName];
             }
 
             // Needed for PHP 7.2 support.
-            if (method_exists($property, 'hasType')) {
-                if ($property->hasType()) {
-                    $this->dataTypeRules[$propertyName] = $property->getType()->getName();
+            if (method_exists($property, 'hasType') && $property->hasType()) {
+                if (method_exists($property, 'getType')) {
+                    $isNullable = $property->getType()->allowsNull() ? '?' : '';
+                    $this->dataTypeRules[$propertyName] = $isNullable . $property->getType()->getName();
                 }
             }
 
@@ -419,6 +435,7 @@ abstract class SimpleDTO implements SimpleDTOContract
         $this->options = $input['options'];
         $this->validator->validate($input['data'], $input['dataRules']);
         $this->dataTypeRules = $input['dataRules'];
+        $this->origDataTypeRules = $this->dataTypeRules;
         $this->loadConcreteProperties($input);
         $this->data = $input['data'];
     }
