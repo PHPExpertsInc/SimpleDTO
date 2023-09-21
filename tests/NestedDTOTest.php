@@ -18,7 +18,6 @@ use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
-use Reflection;
 
 /** @testdox PHPExperts\SimpleDTO\NestedDTO */
 final class NestedDTOTest extends TestCase

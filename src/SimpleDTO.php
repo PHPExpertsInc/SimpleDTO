@@ -143,7 +143,7 @@ abstract class SimpleDTO implements SimpleDTOContract
 
             // Needed for PHP 7.2 support.
             if (method_exists($property, 'hasType') && $property->hasType()) {
-                if (method_exists($property, 'getType')) {
+                if (method_exists($property, 'getType') && $property->getType() instanceof \ReflectionNamedType) {
                     $isNullable = $property->getType()->allowsNull() ? '?' : '';
                     $this->dataTypeRules[$propertyName] = $isNullable . $property->getType()->getName();
                 }
