@@ -65,7 +65,7 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
     private function convertPropertiesToDTOs(array $input, ?array $options): array
     {
         foreach ($this->DTOs as $property => $dtoClass) {
-            if (substr($property, -2) === '[]' || (!empty($input[$property]) && is_array($input[$property]))) {
+            if (substr($property, -2) === '[]' || (array_key_exists($property, $input) && is_array($input[$property]))) {
                 $this->processDTOArray($input, $property, $dtoClass, $options);
 
                 continue;
