@@ -14,14 +14,13 @@
 
 namespace PHPExperts\SimpleDTO\Tests;
 
-use PHPExperts\SimpleDTO\NestedDTO;
+namespace PHPExperts\SimpleDTO\Tests;
 
-/**
- * @property string                 $name
- * @property MyTypedPropertyTestDTO $myDTO
- */
-class MyNestedTestDTO extends NestedDTO
+use PHPExperts\SimpleDTO\SimpleDTO;
+
+class MyTypedPropertyTestDTO extends SimpleDTO
 {
-    /** @var string */
-    protected $name = 'Nested';
+    protected string $name;
+    protected float $age;
+    protected int $year;
 }

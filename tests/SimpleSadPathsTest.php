@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2020 PHP Experts, Inc.
+ * Copyright © 2019-2024 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -15,6 +15,7 @@
 namespace PHPExperts\SimpleDTO\Tests;
 
 use Error;
+use InvalidArgumentException;
 use LogicException;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\SimpleDTO;
@@ -26,29 +27,31 @@ final class SimpleSadPathsTest extends TestCase
     public function testCannotInitializeWithANonexistingProperty()
     {
         try {
-            new MyTestDTO([
+            new MyTypedPropertyTestDTO([
+                'year'        => 1988,
                 'name'        => 'Sibi',
                 'age'         => 25.2,
                 'nonexistant' => true,
             ]);
             $this->fail('A DTO with an undefined property was created.');
         } catch (Error $e) {
-            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$nonexistant.', $e->getMessage());
+            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTypedPropertyTestDTO::$nonexistant.', $e->getMessage());
         }
     }
 
     public function testAccessingANonexistingPropertyThrowsAnError()
     {
         try {
-            $dto = new MyTestDTO([
-                'name'        => 'Sibi',
-                'age'         => 25.2,
+            $dto = new MyTypedPropertyTestDTO([
+                'year'  => 2005,
+                'name'  => 'Sibi',
+                'age'   => 25.2,
             ]);
 
             $dto->doesntExist;
             $this->fail('A non-existing property was accessed.');
         } catch (Error $e) {
-            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$doesntExist.', $e->getMessage());
+            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTypedPropertyTestDTO::$doesntExist.', $e->getMessage());
         }
     }
 
@@ -161,31 +164,26 @@ final class SimpleSadPathsTest extends TestCase
     /** @testdox Will not unserialize DTOs with invalid data */
     public function testWillNotUnserializeDTOsWithInvalidData()
     {
-        $serializedJSON = <<<'JSON'
-C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":291:{{
-    "isA": "PHPExperts\\DataTypeValidator\\IsAFuzzyDataType",
-    "options": [
-        101
-    ],
-    "dataRules": {
-        "name": "?string",
-        "age": "?floam",
-        "year": "?int"
-    },
-    "data": {
-        "year": 2019,
-        "name": 1,
-        "age": "4510000000"
-    }
-}}
-JSON;
+        // To build, also comment out lines 229-230 in SimpleDTO.php.
+        // $dto = new MyTestDTO([
+        //     'name' => 1,
+        //     'age'  => (string)(4.51 * 1000000000),
+        //     'year' => 1981,
+        // ]);
+        // dd(serialize($dto));
+
+        $serialized = <<<TXT
+O:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":4:{s:3:"isA";s:46:"PHPExperts\DataTypeValidator\IsAStrictDataType";s:7:"options";a:0:{}s:9:"dataRules";a:3:{s:4:"name";s:6:"string";s:3:"age";s:5:"float";s:4:"year";s:3:"int";}s:4:"data";a:3:{s:4:"name";i:1;s:3:"age";s:10:"4510000000";s:4:"year";i:1981;}}
+TXT;
+
         $expected = [
             'name' => 'name is not a valid string',
-            'age'  => 'age is not a valid floam',
+            'age'  => 'age is not a valid float',
         ];
 
         try {
-            unserialize($serializedJSON);
+            $data = unserialize($serialized);
+            dump($data);
             $this->fail('Unserialized a DTO with invalid data.');
         } catch (InvalidDataTypeException $e) {
             self::assertSame('There were 2 validation errors.', $e->getMessage());

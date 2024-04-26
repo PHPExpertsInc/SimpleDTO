@@ -1,3 +1,11 @@
+## v3.6.0
+
+* **[2024-04-26 16:40:51 CDT]** Boosted the requirements to PHP v7.4.
+* **[2024-04-26 17:10:07 CDT]** Completely reimplemented serialization to support PHP 7.4's new __serialize() and for PHP 9.0 support.
+* **[2024-04-26 17:02:39 CDT]** [m] PHPUnit will now display PHP deprecation notices.
+* **[2024-04-26 17:06:54 CDT]** [m] Fixed the MyTypedPropertyTestDTO tests.
+* **[2024-01-30 14:09:31 CDT]** Fixed nested DTOs where nested array property is an empty array. (#25)
+
 ## v3.5.0
 
 * **[2023-07-22 22:40:34 CDT]** Added support for nullable concrete typed properties. HEAD -> v3.5, upstream/v3.5, origin/v3.5

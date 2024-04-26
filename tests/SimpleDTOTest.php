@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2020 PHP Experts, Inc.
+ * Copyright © 2019-2024 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -29,10 +29,15 @@ final class SimpleDTOTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->dto = new MyTestDTO([
-            'name' => 'World',
-            'age'  => 4.51 * 1000000000,
-        ]);
+        try {
+            $this->dto = new MyTypedPropertyTestDTO([
+                'name' => 'World',
+                'age'  => 4.51 * 1000000000,
+                'year' => 1981,
+            ]);
+        } catch (InvalidDataTypeException $t) {
+            dd($t->getReasons());
+        }
 
         parent::setUp();
     }
@@ -40,7 +45,7 @@ final class SimpleDTOTest extends TestCase
     public function testPropertiesAreSetViaTheConstructor()
     {
         self::assertInstanceOf(SimpleDTO::class, $this->dto);
-        self::assertInstanceOf(MyTestDTO::class, $this->dto);
+        self::assertInstanceOf(MyTypedPropertyTestDTO::class, $this->dto);
     }
 
     public function testPropertiesAreAccessedAsPublicProperties()
@@ -217,18 +222,24 @@ final class SimpleDTOTest extends TestCase
         $testNullabbleWithNulls = function () {
             $info = ['firstName' => 'Nataly', 'lastName' => null, 'age' => null, 'height' => null];
 
-            /**
-             * Every public and private property is ignored, as are static protected ones.
-             *
-             * @property ?string $firstName
-             * @property ?string $lastName
-             * @property ?int    $age
-             * @property ?float  $height
-             */
-            $dto = new class($info, [SimpleDTO::PERMISSIVE]) extends SimpleDTO {
-            };
+            try {
+                /**
+                 * Every public and private property is ignored, as are static protected ones.
+                 *
+                 * @property ?string $firstName
+                 * @property ?string $lastName
+                 * @property ?int    $age
+                 * @property ?float  $height
+                 */
+                $dto = new class($info, [SimpleDTO::PERMISSIVE]) extends SimpleDTO {
+                    protected int $year = 1988;
+                };
+            } catch (\Throwable $t) {
+                dd($t->getMessage());
+            }
 
             $expected = [
+                'year'      => 1988,
                 'firstName' => 'Nataly',
                 'lastName'  => null,
                 'age'       => null,
@@ -241,6 +252,11 @@ final class SimpleDTOTest extends TestCase
     }
 
     private function getSerializedDTO(): string
+    {
+        return 'O:49:"PHPExperts\SimpleDTO\Tests\MyTypedPropertyTestDTO":4:{s:3:"isA";s:45:"PHPExperts\DataTypeValidator\IsAFuzzyDataType";s:7:"options";a:1:{i:0;i:101;}s:9:"dataRules";a:3:{s:4:"name";s:6:"string";s:3:"age";s:5:"float";s:4:"year";s:3:"int";}s:4:"data";a:3:{s:4:"year";i:2019;s:4:"name";s:5:"World";s:3:"age";s:10:"4510000000";}}';
+    }
+
+    private function getSerializedDTOv1(): array
     {
         $expectedJSON = <<<'JSON'
 {
@@ -261,24 +277,20 @@ final class SimpleDTOTest extends TestCase
 }
 JSON;
 
-        return $expectedJSON;
+        return json_decode($expectedJSON, true);
     }
 
     public function testCanBeSerialized()
     {
-        $dto = new MyTestDTO([
+        $dto = new MyTypedPropertyTestDTO([
+            'year' => 2019,
             'name' => 'World',
             'age'  => (string) (4.51 * 1000000000),
         ], [SimpleDTO::PERMISSIVE]);
 
-        $expectedJSON = $this->getSerializedDTO();
-        $serializedJson = sprintf(
-            "%s$expectedJSON}",
-            'C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":294:{'
-        );
+        $expected = $this->getSerializedDTO();
 
-        self::assertSame($expectedJSON, $dto->serialize());
-        self::assertSame($serializedJson, serialize($dto));
+        self::assertSame($expected, serialize($dto));
 
         return $dto;
     }
@@ -288,12 +300,7 @@ JSON;
      */
     public function testCanBeUnserialized(SimpleDTO $origDTO)
     {
-        $serializedJSON = sprintf(
-            '%s%s}',
-            'C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":294:{',
-            $this->getSerializedDTO()
-        );
-
+        $serializedJSON = $this->getSerializedDTO();
         $awokenDTO = unserialize($serializedJSON);
 
         self::assertEquals($origDTO->toArray(), $awokenDTO->toArray());
