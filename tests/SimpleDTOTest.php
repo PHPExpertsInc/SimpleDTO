@@ -29,10 +29,15 @@ final class SimpleDTOTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->dto = new MyTestDTO([
-            'name' => 'World',
-            'age'  => 4.51 * 1000000000,
-        ]);
+        try {
+            $this->dto = new MyTypedPropertyTestDTO([
+                'name' => 'World',
+                'age'  => 4.51 * 1000000000,
+                'year' => 1981,
+            ]);
+        } catch (InvalidDataTypeException $t) {
+            dd($t->getReasons());
+        }
 
         parent::setUp();
     }
@@ -40,7 +45,7 @@ final class SimpleDTOTest extends TestCase
     public function testPropertiesAreSetViaTheConstructor()
     {
         self::assertInstanceOf(SimpleDTO::class, $this->dto);
-        self::assertInstanceOf(MyTestDTO::class, $this->dto);
+        self::assertInstanceOf(MyTypedPropertyTestDTO::class, $this->dto);
     }
 
     public function testPropertiesAreAccessedAsPublicProperties()
@@ -217,18 +222,24 @@ final class SimpleDTOTest extends TestCase
         $testNullabbleWithNulls = function () {
             $info = ['firstName' => 'Nataly', 'lastName' => null, 'age' => null, 'height' => null];
 
-            /**
-             * Every public and private property is ignored, as are static protected ones.
-             *
-             * @property ?string $firstName
-             * @property ?string $lastName
-             * @property ?int    $age
-             * @property ?float  $height
-             */
-            $dto = new class($info, [SimpleDTO::PERMISSIVE]) extends SimpleDTO {
-            };
+            try {
+                /**
+                 * Every public and private property is ignored, as are static protected ones.
+                 *
+                 * @property ?string $firstName
+                 * @property ?string $lastName
+                 * @property ?int    $age
+                 * @property ?float  $height
+                 */
+                $dto = new class($info, [SimpleDTO::PERMISSIVE]) extends SimpleDTO {
+                    protected int $year = 1988;
+                };
+            } catch (\Throwable $t) {
+                dd($t->getMessage());
+            }
 
             $expected = [
+                'year'      => 1988,
                 'firstName' => 'Nataly',
                 'lastName'  => null,
                 'age'       => null,

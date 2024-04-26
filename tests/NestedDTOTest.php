@@ -24,7 +24,7 @@ final class NestedDTOTest extends TestCase
 {
     private function buildNestedDTO(): NestedDTO
     {
-        $myDTO = new MyTestDTO([
+        $myDTO = new MyTypedPropertyTestDTO([
             'name' => 'PHP Experts, Inc.',
             'age'  => 7.01,
             'year' => 2019,
@@ -32,9 +32,9 @@ final class NestedDTOTest extends TestCase
 
         try {
             /**
-             * @property MyTestDTO $myDTO
+             * @property MyTypedPropertyTestDTO $myDTO
              */
-            $nestedDTO = new MyNestedTestDTO(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]);
+            $nestedDTO = new MyNestedTestDTO(['myDTO' => $myDTO], ['myDTO' => MyTypedPropertyTestDTO::class]);
         } catch (InvalidDataTypeException $e) {
             dd([$e->getReasons(), $e->getTraceAsString()]);
         }
@@ -63,12 +63,12 @@ final class NestedDTOTest extends TestCase
     public function testCanConstructArraysOfNestedDTOs()
     {
         $myDTOs = [
-            new MyTestDTO([
+            new MyTypedPropertyTestDTO([
                 'name' => 'PHP Experts, Inc.',
                 'age'  => 7.01,
                 'year' => 2019,
             ]),
-            new MyTestDTO([
+            new MyTypedPropertyTestDTO([
                 'name' => 'Cheyenne Novosad',
                 'age'  => 22.472,
                 'year' => 1996,
@@ -76,9 +76,9 @@ final class NestedDTOTest extends TestCase
         ];
 
         /**
-         * @property MyTestDTO[] $myDTOs
+         * @property MyTypedPropertyTestDTO[] $myDTOs
          */
-        $nestedDTO = new class(['myDTOs' => $myDTOs], ['myDTOs[]' => MyTestDTO::class]) extends NestedDTO {
+        $nestedDTO = new class(['myDTOs' => $myDTOs], ['myDTOs[]' => MyTypedPropertyTestDTO::class]) extends NestedDTO {
         };
 
         self::assertInstanceOf(NestedDTO::class, $nestedDTO);
@@ -100,7 +100,7 @@ final class NestedDTOTest extends TestCase
     public function testCanRetrieveTheDTOs()
     {
         $myDTOs = [
-            new MyTestDTO([
+            new MyTypedPropertyTestDTO([
                 'name' => 'PHP Experts, Inc.',
                 'age'  => 8.01,
                 'year' => 2020,
@@ -108,12 +108,12 @@ final class NestedDTOTest extends TestCase
         ];
 
         /**
-         * @property MyTestDTO[] $myDTOs
+         * @property MyTypedPropertyTestDTO[] $myDTOs
          */
-        $nestedDTO = new class(['myDTOs' => $myDTOs], ['myDTOs[]' => MyTestDTO::class]) extends NestedDTO {
+        $nestedDTO = new class(['myDTOs' => $myDTOs], ['myDTOs[]' => MyTypedPropertyTestDTO::class]) extends NestedDTO {
         };
 
-        $expected = ['myDTOs[]' => MyTestDTO::class];
+        $expected = ['myDTOs[]' => MyTypedPropertyTestDTO::class];
 
         self::assertSame($expected, $nestedDTO->getDTOs());
     }
@@ -129,9 +129,9 @@ final class NestedDTOTest extends TestCase
             ];
 
             /**
-             * @property MyTestDTO $myDTO
+             * @property MyTypedPropertyTestDTO $myDTO
              */
-            $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO {
+            $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTypedPropertyTestDTO::class]) extends NestedDTO {
             };
         } catch (InvalidDataTypeException $e) {
             dd($e->getReasons());
@@ -158,9 +158,9 @@ final class NestedDTOTest extends TestCase
         ];
 
         /**
-         * @property MyTestDTO $myDTO
+         * @property MyTypedPropertyTestDTO $myDTO
          */
-        $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO {
+        $nestedDTO = new class(['myDTO' => $myDTO], ['myDTO' => MyTypedPropertyTestDTO::class]) extends NestedDTO {
         };
 
         $expected = [
@@ -185,9 +185,9 @@ final class NestedDTOTest extends TestCase
         ];
 
         /**
-         * @property MyTestDTO $myDTO
+         * @property MyTypedPropertyTestDTO $myDTO
          */
-        $nestedDTO = new class(['myDTO' => $myDTOInfo], ['myDTO' => MyTestDTO::class]) extends NestedDTO {
+        $nestedDTO = new class(['myDTO' => $myDTOInfo], ['myDTO' => MyTypedPropertyTestDTO::class]) extends NestedDTO {
         };
 
         $expected = [
@@ -232,6 +232,18 @@ final class NestedDTOTest extends TestCase
 
         self::assertSame($expected, $nestedDTO->toArray());
 
+        try {
+            $serialized = serialize($myTypedPropertyDTO);
+            $actual = unserialize($serialized);
+//            dd([
+//                'serialized'   => $serialized,
+//                'unserialized' => $actual
+//            ]);
+        } catch (InvalidDataTypeException $e) {
+            dd($e->getReasons());
+        }
+
+
         $actual = unserialize(serialize($myTypedPropertyDTO));
         self::assertEquals($myTypedPropertyDTO, $actual);
     }
@@ -274,7 +286,7 @@ final class NestedDTOTest extends TestCase
     /** @testdox All registered Nested DTOs are required */
     public function testAllRegisteredNestedDTOsAreRequired()
     {
-        $myDTO = new MyTestDTO([
+        $myDTO = new MyTypedPropertyTestDTO([
             'name' => 'PHP Experts, Inc.',
             'age'  => 7.01,
             'year' => 2019,
@@ -282,15 +294,15 @@ final class NestedDTOTest extends TestCase
 
         try {
             /**
-             * @property MyTestDTO $myDTO
+             * @property MyTypedPropertyTestDTO $myDTO
              */
-            $dto = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class, 'missing' => MyTestDTO::class]) extends NestedDTO {
+            $dto = new class(['myDTO' => $myDTO], ['myDTO' => MyTypedPropertyTestDTO::class, 'missing' => MyTypedPropertyTestDTO::class]) extends NestedDTO {
             };
 
             $this->fail('A nested DTO was created without all of the required DTOs.');
         } catch (InvalidDataTypeException $e) {
             self::assertSame('Missing critical DTO input(s).', $e->getMessage());
-            self::assertSame(['missing' => MyTestDTO::class], $e->getReasons());
+            self::assertSame(['missing' => MyTypedPropertyTestDTO::class], $e->getReasons());
         }
     }
 
@@ -304,9 +316,9 @@ final class NestedDTOTest extends TestCase
         ];
 
         /**
-         * @property MyTestDTO $myDTO
+         * @property MyTypedPropertyTestDTO $myDTO
          */
-        $dto = new class(['myDTO' => $myDTO, 'extra' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO {
+        $dto = new class(['myDTO' => $myDTO, 'extra' => $myDTO], ['myDTO' => MyTypedPropertyTestDTO::class]) extends NestedDTO {
         };
 
         $expectedArray = [
@@ -329,7 +341,7 @@ final class NestedDTOTest extends TestCase
         ];
 
         self::assertSame($expectedArray, $dto->toArray());
-        self::assertInstanceOf(MyTestDTO::class, $dto->myDTO);
+        self::assertInstanceOf(MyTypedPropertyTestDTO::class, $dto->myDTO);
         self::assertInstanceOf('\stdClass', $dto->extra);
         self::assertEquals($expectedObject, $dto->extra);
     }
@@ -413,7 +425,7 @@ JSON;
         $nestedDTO = $this->buildNestedDTO();
         $expected = [
             'name'  => 'Nested',
-            'myDTO' => new MyTestDTO([
+            'myDTO' => new MyTypedPropertyTestDTO([
                 'name' => 'PHP Experts, Inc.',
                 'age'  => 7.01,
                 'year' => 2019,

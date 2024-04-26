@@ -26,29 +26,31 @@ final class SimpleSadPathsTest extends TestCase
     public function testCannotInitializeWithANonexistingProperty()
     {
         try {
-            new MyTestDTO([
+            new MyTypedPropertyTestDTO([
+                'year'        => 1988,
                 'name'        => 'Sibi',
                 'age'         => 25.2,
                 'nonexistant' => true,
             ]);
             $this->fail('A DTO with an undefined property was created.');
         } catch (Error $e) {
-            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$nonexistant.', $e->getMessage());
+            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTypedPropertyTestDTO::$nonexistant.', $e->getMessage());
         }
     }
 
     public function testAccessingANonexistingPropertyThrowsAnError()
     {
         try {
-            $dto = new MyTestDTO([
-                'name'        => 'Sibi',
-                'age'         => 25.2,
+            $dto = new MyTypedPropertyTestDTO([
+                'year'  => 2005,
+                'name'  => 'Sibi',
+                'age'   => 25.2,
             ]);
 
             $dto->doesntExist;
             $this->fail('A non-existing property was accessed.');
         } catch (Error $e) {
-            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTestDTO::$doesntExist.', $e->getMessage());
+            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTypedPropertyTestDTO::$doesntExist.', $e->getMessage());
         }
     }
 
@@ -181,7 +183,7 @@ C:36:"PHPExperts\SimpleDTO\Tests\MyTestDTO":291:{{
 JSON;
         $expected = [
             'name' => 'name is not a valid string',
-            'age'  => 'age is not a valid floam',
+            'age'  => 'age is not a valid float',
         ];
 
         try {

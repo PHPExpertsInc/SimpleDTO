@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2020 PHP Experts, Inc.
+ * Copyright © 2019-2024 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -14,14 +14,13 @@
 
 namespace PHPExperts\SimpleDTO\Tests;
 
-use PHPExperts\SimpleDTO\NestedDTO;
+namespace PHPExperts\SimpleDTO\Tests;
 
-/**
- * @property string                 $name
- * @property MyTypedPropertyTestDTO $myDTO
- */
-class MyNestedTestDTO extends NestedDTO
+use PHPExperts\SimpleDTO\SimpleDTO;
+
+class MyTypedPropertyTestDTO extends SimpleDTO
 {
-    /** @var string */
-    protected $name = 'Nested';
+    protected string $name;
+    protected float $age;
+    protected int $year;
 }
