@@ -194,6 +194,7 @@ PHPExperts\SimpleDTO\NestedDTO
 
 PHPExperts\SimpleDTO\WriteOnceTrait  
  ✔ Can accept null values  
+ ✔ Can be serialized  
  ✔ Will validate on serialize  
  ✔ Will validate on to array  
  ✔ Can write each null value once  
