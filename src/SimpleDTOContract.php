@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2020 PHP Experts, Inc.
+ * Copyright © 2019-2024 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -15,9 +15,8 @@
 namespace PHPExperts\SimpleDTO;
 
 use JsonSerializable;
-use Serializable;
 
-interface SimpleDTOContract extends JsonSerializable, Serializable
+interface SimpleDTOContract extends JsonSerializable
 {
     public function isPermissive(): bool;
 
@@ -47,10 +46,7 @@ interface SimpleDTOContract extends JsonSerializable, Serializable
     /**
      * @return false|string
      */
-    public function serialize();
+    public function __serialize(): array;
 
-    /**
-     * @param string $serialized
-     */
-    public function unserialize($serialized): void;
+    public function __unserialize(array $serialized): void;
 }

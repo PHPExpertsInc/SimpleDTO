@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2020 PHP Experts, Inc.
+ * Copyright © 2019-2024 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -348,45 +348,20 @@ final class NestedDTOTest extends TestCase
 
     private function getSerializedDTO(): string
     {
-        $expectedJSON = <<<'JSON'
-{
-    "isA": "PHPExperts\\DataTypeValidator\\IsAFuzzyDataType",
-    "options": [
-        101
-    ],
-    "dataRules": {
-        "name": "string",
-        "myDTO": "MyTestDTO"
-    },
-    "data": {
-        "name": "Nested",
-        "myDTO": {
-            "name": "PHP Experts, Inc.",
-            "age": 7.01,
-            "year": 2019
-        }
-    },
-    "DTOs": {
-        "myDTO": "PHPExperts\\SimpleDTO\\Tests\\MyTestDTO"
-    }
-}
-JSON;
-
-        return $expectedJSON;
+        return 'O:42:"PHPExperts\SimpleDTO\Tests\MyNestedTestDTO":4:{s:3:"isA";s:45:"PHPExperts\DataTypeValidator\IsAFuzzyDataType";s:7:"options";a:1:{i:0;i:101;}s:9:"dataRules";a:2:{s:4:"name";s:6:"string";s:5:"myDTO";s:22:"MyTypedPropertyTestDTO";}s:4:"data";a:2:{s:4:"name";s:6:"Nested";s:5:"myDTO";O:49:"PHPExperts\SimpleDTO\Tests\MyTypedPropertyTestDTO":4:{s:3:"isA";s:46:"PHPExperts\DataTypeValidator\IsAStrictDataType";s:7:"options";a:0:{}s:9:"dataRules";a:3:{s:4:"name";s:6:"string";s:3:"age";s:5:"float";s:4:"year";s:3:"int";}s:4:"data";a:3:{s:4:"name";s:17:"PHP Experts, Inc.";s:3:"age";d:7.01;s:4:"year";i:2019;}}}}';
     }
 
     public function testCanBeSerialized()
     {
         $nestedDTO = $this->buildNestedDTO();
         $expectedJSON = $this->getSerializedDTO();
-        $serializedJson = sprintf(
-            "%s$expectedJSON}",
-            'C:42:"PHPExperts\SimpleDTO\Tests\MyNestedTestDTO":428:{'
-        );
+        //dd($nestedDTO->toArray());
+        $actualJSON = serialize($nestedDTO);
 
-        self::assertSame($expectedJSON, $nestedDTO->serialize());
+//        file_put_contents("/tmp/expected.json", $expectedJSON);
+//        file_put_contents("/tmp/actual.json", $actualJSON);
 
-        self::assertSame($serializedJson, serialize($nestedDTO));
+        self::assertSame($expectedJSON, $actualJSON);
 
         return $nestedDTO;
     }
@@ -396,13 +371,13 @@ JSON;
      */
     public function testCanBeUnserialized(SimpleDTO $origDTO)
     {
-        $serializedJSON = sprintf(
-            '%s%s}',
-            'C:42:"PHPExperts\SimpleDTO\Tests\MyNestedTestDTO":428:{',
-            $this->getSerializedDTO()
-        );
+        $serialized = $this->getSerializedDTO();
 
-        $awokenDTO = unserialize($serializedJSON);
+        try {
+            $awokenDTO = unserialize($serialized);
+        } catch (InvalidDataTypeException $e) {
+            dd($e->getReasons());
+        }
 
         self::assertEquals(serialize($origDTO), serialize($awokenDTO));
     }

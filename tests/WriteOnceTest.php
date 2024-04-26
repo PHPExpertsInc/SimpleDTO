@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2020 PHP Experts, Inc.
+ * Copyright © 2019-2024 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -24,21 +24,11 @@ final class WriteOnceTest extends TestCase
 {
     private function buildWriteOnceDTO(): SimpleDTO
     {
-        $info = [
+        $writeOnceDTO = new WriteOnceTestDTO([
             'name' => 'PHP Experts, Inc.',
             'age'  => null,
             'year' => null,
-        ];
-
-        /**
-         * @property string $name
-         * @property float  $age
-         * @property int    $year
-         */
-        $writeOnceDTO = new class($info) extends SimpleDTO
-        {
-            use WriteOnce;
-        };
+        ]);
 
         return $writeOnceDTO;
     }
@@ -51,6 +41,32 @@ final class WriteOnceTest extends TestCase
         self::assertEquals('PHP Experts, Inc.', $writeOnceDTO->name);
     }
 
+    public function testCanBeSerialized()
+    {
+        $writeOnceDTO = $this->buildWriteOnceDTO();
+
+        $expected = [
+            'age'  => 'age is not a valid float',
+            'year' => 'year is not a valid int',
+        ];
+
+        try {
+            serialize($writeOnceDTO);
+            $this->fail("It serialized a bugged WriteOnce DTO");
+        } catch (InvalidDataTypeException $e) {
+            self::assertEquals($expected, $e->getReasons());
+        }
+
+        $expected = <<<'TEXT'
+O:43:"PHPExperts\SimpleDTO\Tests\WriteOnceTestDTO":4:{s:3:"isA";s:46:"PHPExperts\DataTypeValidator\IsAStrictDataType";s:7:"options";a:1:{i:0;i:102;}s:9:"dataRules";a:3:{s:4:"name";s:6:"string";s:3:"age";s:5:"float";s:4:"year";s:3:"int";}s:4:"data";a:3:{s:4:"name";s:17:"PHP Experts, Inc.";s:3:"age";d:5.2;s:4:"year";i:2014;}}
+TEXT;
+
+        $writeOnceDTO->age = 5.2;
+        $writeOnceDTO->year = 2014;
+
+        self::assertEquals($expected, serialize($writeOnceDTO));
+    }
+
     public function testWillValidateOnSerialize()
     {
         $writeOnceDTO = $this->buildWriteOnceDTO();
@@ -61,34 +77,19 @@ final class WriteOnceTest extends TestCase
         ];
 
         try {
-            $writeOnceDTO->serialize();
+            serialize($writeOnceDTO);
         } catch (InvalidDataTypeException $e) {
             self::assertEquals($expected, $e->getReasons());
         }
 
-        $expected = <<<'JSON'
-{
-    "isA": "PHPExperts\\DataTypeValidator\\IsAStrictDataType",
-    "options": [
-        102
-    ],
-    "dataRules": {
-        "name": "string",
-        "age": "float",
-        "year": "int"
-    },
-    "data": {
-        "name": "PHP Experts, Inc.",
-        "age": 5.2,
-        "year": 2014
-    }
-}
-JSON;
+        $expected = <<<'TEXT'
+O:43:"PHPExperts\SimpleDTO\Tests\WriteOnceTestDTO":4:{s:3:"isA";s:46:"PHPExperts\DataTypeValidator\IsAStrictDataType";s:7:"options";a:1:{i:0;i:102;}s:9:"dataRules";a:3:{s:4:"name";s:6:"string";s:3:"age";s:5:"float";s:4:"year";s:3:"int";}s:4:"data";a:3:{s:4:"name";s:17:"PHP Experts, Inc.";s:3:"age";d:5.2;s:4:"year";i:2014;}}
+TEXT;
 
         $writeOnceDTO->age = 5.2;
         $writeOnceDTO->year = 2014;
 
-        self::assertEquals($expected, $writeOnceDTO->serialize());
+        self::assertEquals($expected, serialize($writeOnceDTO));
     }
 
     /** @testdox Will validate when toArray() is called */

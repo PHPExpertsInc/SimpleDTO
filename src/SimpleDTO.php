@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2020 PHP Experts, Inc.
+ * Copyright © 2019-2024 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -412,34 +412,6 @@ abstract class SimpleDTO implements SimpleDTOContract
     /**
      * @return false|string
      */
-    public function serialize()
-    {
-        $output = [
-            'isA'       => $this->validator->getValidationType(),
-            'options'   => $this->options,
-            'dataRules' => $this->origDataTypeRules,
-            'data'      => $this->toArray(),
-        ];
-
-        return json_encode($output, JSON_PRETTY_PRINT);
-    }
-
-    /**
-     * @param string $serialized
-     */
-    public function unserialize($serialized): void
-    {
-        $input = json_decode($serialized, true);
-
-        $this->validator = new DataTypeValidator(new $input['isA']());
-        $this->options = $input['options'];
-        $this->validator->validate($input['data'], $input['dataRules']);
-        $this->dataTypeRules = $input['dataRules'];
-        $this->origDataTypeRules = $this->dataTypeRules;
-        $this->loadConcreteProperties($input);
-        $this->data = $input['data'];
-    }
-
         /**
          * Returns all traits used by a class, its parent classes and trait of their traits.
          * Copyright (c) 2018 Taylor Otwell
@@ -491,4 +463,26 @@ abstract class SimpleDTO implements SimpleDTOContract
 
             return $traits;
         }
+
+    public function __serialize(): array
+    {
+        return [
+            'isA'       => $this->validator->getValidationType(),
+            'options'   => $this->options,
+            'dataRules' => $this->origDataTypeRules,
+            'data'      => $this->data,
+        ];
+    }
+
+    public function __unserialize(array $input): void
+    {
+        $this->validator = new DataTypeValidator(new $input['isA']());
+        $this->options = $input['options'];
+        $this->validator->validate($input['data'], $input['dataRules']);
+        $this->dataTypeRules = $input['dataRules'];
+        $this->origDataTypeRules = $this->dataTypeRules;
+        $this->loadConcreteProperties($input);
+        $this->data = $input['data'];
+    }
+
 }
