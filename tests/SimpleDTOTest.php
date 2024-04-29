@@ -92,7 +92,7 @@ final class SimpleDTOTest extends TestCase
             $this->fail('Setting a property did not throw an error.');
         } catch (Error $e) {
             self::assertEquals(
-                'SimpleDTOs are immutable. Create a new one to set a new value.',
+                'SimpleDTOs are immutable. Create a new DTO to set a new value.',
                 $e->getMessage()
             );
         }

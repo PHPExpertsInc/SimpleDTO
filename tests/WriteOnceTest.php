@@ -127,7 +127,7 @@ TEXT;
         try {
             $writeOnceDTO->age = 8.0;
         } catch (\Error $e) {
-            self::assertEquals('SimpleDTOs are immutable. Create a new one to set a new value.', $e->getMessage());
+            self::assertEquals('SimpleDTOs are immutable. Create a new DTO to set a new value.', $e->getMessage());
         }
     }
 

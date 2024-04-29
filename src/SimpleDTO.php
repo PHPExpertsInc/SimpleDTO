@@ -333,7 +333,7 @@ abstract class SimpleDTO implements SimpleDTOContract
      */
     public function __set(string $property, $value): void
     {
-        throw new Error('SimpleDTOs are immutable. Create a new one to set a new value.');
+        throw new Error('SimpleDTOs are immutable. Create a new DTO to set a new value.');
     }
 
     /**

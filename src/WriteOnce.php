@@ -34,7 +34,7 @@ trait WriteOnce
             return;
         }
 
-        throw new Error('SimpleDTOs are immutable. Create a new one to set a new value.');
+        throw new Error('SimpleDTOs are immutable. Create a new DTO to set a new value.');
     }
 
     public function toArray(): array
