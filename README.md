@@ -128,7 +128,7 @@ You can nest DTOs inside of each other.
     /**
      * @property MyTestDTO $myDTO
      */
-    $dto = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO
+    $dto = new class(['myDTO' => $myDTO]) extends NestedDTO
     {
     };
     

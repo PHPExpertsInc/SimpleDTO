@@ -93,6 +93,7 @@ final class NestedDTOTest extends TestCase
             };
             $this->fail('Created an invalid nested DTO.');
         } catch (InvalidDataTypeException $e) {
+            self::assertEquals('PHPExperts\SimpleDTO\Tests\MyNestedTestDTO::$key must be a string, but it is actually an integer.', $e->getMessage());
         }
     }
 
@@ -393,6 +394,48 @@ final class NestedDTOTest extends TestCase
         } catch (InvalidDataTypeException $e) {
             self::fail("Failed to validate the nested DTO because: \n* " . implode("\n* ", $e->getReasons()));
         }
+
+        $buildInvalidNestedDTO = function () {
+            $myDTO = new MyTypedPropertyTestDTO([
+                'name' => 'PHP Experts, Inc.',
+                'age'  => 7.01,
+                'year' => 2019,
+            ]);
+
+            try {
+                /**
+                 * @property MyTypedPropertyTestDTO $myDTO
+                 * @property string $name
+                 */
+                $nestedDTO = new class(['myDTO' => $myDTO, 'name' => 123], ['myDTO' => MyTypedPropertyTestDTO::class]) extends MyNestedTestDTO
+                {
+
+                };
+                self::fail("Failed to invalidate an invalid NestedDTO.");
+            } catch (InvalidDataTypeException $e) {
+                self::assertEquals(['name' => 'name is not a valid string'], $e->getReasons());
+            }
+
+            try {
+                $myDTO = new BirthdayDTO([
+                    'name' => 'Vivek Ramaswamy',
+                    'date' => '1985-08-09',
+                ]);
+                /**
+                 * @property MyTypedPropertyTestDTO $myDTO
+                 * @property string $name
+                 */
+                $nestedDTO = new class(['myDTO' => $myDTO, 'name' => 'Vivek']) extends MyNestedTestDTO
+                {
+
+                };
+                self::fail("Failed to invalidate an invalid NestedDTO.");
+            } catch (InvalidDataTypeException $e) {
+                self::assertEquals(['myDTO' => 'myDTO is not a valid MyTypedPropertyTestDTO'], $e->getReasons());
+            }
+        };
+
+        $buildInvalidNestedDTO();
     }
 
     public function testCanGetTheInternalData()

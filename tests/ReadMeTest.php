@@ -17,6 +17,7 @@ namespace PHPExperts\SimpleDTO\Tests;
 use Carbon\Carbon;
 use Error;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
+use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPExperts\SimpleDTO\WriteOnce;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +36,6 @@ final class ReadMeTest extends TestCase
 {
     public function testCanRunTheReadMeCodeSuccessfully()
     {
-
         $birthdayDTO = new BirthdayDTO([
             'name' => 'Donald J. Trump',
             'date' => '1946-06-14',
@@ -102,5 +102,28 @@ final class ReadMeTest extends TestCase
         } catch (Error $e) {
             self::assertEquals('SimpleDTOs are immutable. Create a new DTO to set a new value.', $e->getMessage());
         }
+
+        $myDTO = new MyTestDTO([
+            'name' => 'PHP Experts, Inc.',
+            'age'  => 7.01,
+            'year' => 2019,
+        ]);
+
+        /**
+         * @property MyTestDTO $myDTO
+         */
+        $dto = new class(['myDTO' => $myDTO]) extends NestedDTO
+        {
+        };
+
+        $expected = [
+            "myDTO" => [
+                "name" => "PHP Experts, Inc.",
+                "age"  => 7.01,
+                "year" => 2019
+            ]
+        ];
+
+        self::assertEquals($expected, $dto->toArray());
     }
 }

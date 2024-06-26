@@ -115,7 +115,7 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
      * @param mixed[]|null           $options
      * @param DataTypeValidator|null $validator
      */
-    public function __construct(array $input, array $DTOs, array $options = null, DataTypeValidator $validator = null)
+    public function __construct(array $input, array $DTOs = [], array $options = null, DataTypeValidator $validator = null)
     {
         $filterArraySymbol = function (array $DTOs): array {
             $results = [];
@@ -139,6 +139,12 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
         }
 
         $options = $options ?? [self::PERMISSIVE];
+
+        foreach ($input as $propertyName => $value) {
+            if ($value instanceof SimpleDTOContract) {
+                $this->DTOs[$propertyName] = get_class($value);
+            }
+        }
 
         $this->DTOs = $DTOs;
         $input = $this->convertPropertiesToDTOs($input, $options);
