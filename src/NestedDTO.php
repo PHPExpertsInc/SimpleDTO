@@ -30,35 +30,6 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
         return $this->DTOs;
     }
 
-    public function validate(): void
-    {
-        $errors = [];
-        $errorCount = 0;
-        try {
-            parent::validate();
-        } catch (InvalidDataTypeException $e) {
-            $errors = $e->getReasons();
-            $errorCount += count($errors);
-        }
-
-        foreach ($this->DTOs as $property => $dtoClass) {
-            try {
-                if ($this->data[$property] instanceof SimpleDTO) {
-                    $this->data[$property]->validate();
-                }
-            } catch (InvalidDataTypeException $e) {
-                $errors[$property] = $e->getReasons();
-                $errorCount += count($e->getReasons());
-            }
-        }
-
-        if (!empty($errors)) {
-            $wasWere = $errorCount > 1 ? 'were' : 'was';
-            $errorErrors = $errorCount > 1 ? 's' : '';
-            throw new InvalidDataTypeException("There $wasWere $errorCount error$errorErrors.", $errors);
-        }
-    }
-
     /**
      * @return false|string
      */
