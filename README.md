@@ -114,6 +114,32 @@ Well, just instantiate the parent class like this:
     */
 ```
 
+### WriteOnce DTOs
+
+Sometimes, you may need to initialize one or more values of a DTO after it has been created. This is particularly
+common for stateful DTOs via multiple round-trips in certain APIs (particularly Zuora's).
+
+To overcome the stateless nature of traditional Data Type Objects, you can use the `WriteOnce` trait.
+
+This will enable you to initialize a DTO with *null* and *uninitialized* properties, and set them *once* and only.
+
+Also, you must set every property before you can serialize or `json_encode()` the object, send it to `toArray()`, etc.
+
+```php
+/**
+* @property string $name
+*/
+class CityDTO extends SimpleDTO
+{
+    use WriteOnce;
+
+    protected int $population;
+}
+
+$cityDTO = new CityDTO(['name' => 'Dubai']);
+dd($cityDTO);
+```
+
 ### Ignore certain protected properties.
 
 If you are using PHP 8.0 and above, you can have SimpleDTO ignore any particular `protected` property (PHP will treat it
