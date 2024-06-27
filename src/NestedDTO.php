@@ -30,35 +30,6 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
         return $this->DTOs;
     }
 
-    public function validate(): void
-    {
-        $errors = [];
-        $errorCount = 0;
-        try {
-            parent::validate();
-        } catch (InvalidDataTypeException $e) {
-            $errors = $e->getReasons();
-            $errorCount += count($errors);
-        }
-
-        foreach ($this->DTOs as $property => $dtoClass) {
-            try {
-                if ($this->data[$property] instanceof SimpleDTO) {
-                    $this->data[$property]->validate();
-                }
-            } catch (InvalidDataTypeException $e) {
-                $errors[$property] = $e->getReasons();
-                $errorCount += count($e->getReasons());
-            }
-        }
-
-        if (!empty($errors)) {
-            $wasWere = $errorCount > 1 ? 'were' : 'was';
-            $errorErrors = $errorCount > 1 ? 's' : '';
-            throw new InvalidDataTypeException("There $wasWere $errorCount error$errorErrors.", $errors);
-        }
-    }
-
     /**
      * @return false|string
      */
@@ -144,7 +115,7 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
      * @param mixed[]|null           $options
      * @param DataTypeValidator|null $validator
      */
-    public function __construct(array $input, array $DTOs, array $options = null, DataTypeValidator $validator = null)
+    public function __construct(array $input, array $DTOs = [], array $options = null, DataTypeValidator $validator = null)
     {
         $filterArraySymbol = function (array $DTOs): array {
             $results = [];
@@ -168,6 +139,12 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
         }
 
         $options = $options ?? [self::PERMISSIVE];
+
+        foreach ($input as $propertyName => $value) {
+            if ($value instanceof SimpleDTOContract) {
+                $this->DTOs[$propertyName] = get_class($value);
+            }
+        }
 
         $this->DTOs = $DTOs;
         $input = $this->convertPropertiesToDTOs($input, $options);

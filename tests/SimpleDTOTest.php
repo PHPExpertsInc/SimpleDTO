@@ -18,8 +18,10 @@ use Carbon\Carbon;
 use Error;
 use LogicException;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
+use PHPExperts\SimpleDTO\IgnoreAsDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 /** @testdox PHPExperts\SimpleDTO\SimpleDTO */
 final class SimpleDTOTest extends TestCase
@@ -42,19 +44,19 @@ final class SimpleDTOTest extends TestCase
         parent::setUp();
     }
 
-    public function testPropertiesAreSetViaTheConstructor()
+    public function testPropertiesAreSetViaTheConstructor(): void
     {
         self::assertInstanceOf(SimpleDTO::class, $this->dto);
         self::assertInstanceOf(MyTypedPropertyTestDTO::class, $this->dto);
     }
 
-    public function testPropertiesAreAccessedAsPublicProperties()
+    public function testPropertiesAreAccessedAsPublicProperties(): void
     {
         self::assertEquals('World', $this->dto->name);
     }
 
     /** @testdox Public, private and static protected properties will be ignored  */
-    public function testPublicStaticAndPrivatePropertiesWillBeIgnored()
+    public function testPublicStaticAndPrivatePropertiesWillBeIgnored(): void
     {
         /**
          * Every public and private property is ignored, as are static protected ones.
@@ -80,12 +82,12 @@ final class SimpleDTOTest extends TestCase
     }
 
     /** @testdox Each DTO is immutable */
-    public function testEachDTOIsImmutable()
+    public function testEachDTOIsImmutable(): void
     {
         $this->testSettingAnyPropertyReturnsAnException();
     }
 
-    public function testSettingAnyPropertyReturnsAnException()
+    public function testSettingAnyPropertyReturnsAnException(): void
     {
         try {
             $this->dto->name = 'asdf';
@@ -114,14 +116,14 @@ final class SimpleDTOTest extends TestCase
         };
     }
 
-    public function testConcretePropertiesCanBeUsedToSetDefaultValues()
+    public function testConcretePropertiesCanBeUsedToSetDefaultValues(): void
     {
         $dateDTO = $this->buildDateDTO();
 
         self::assertEquals('9/11', $dateDTO->name);
     }
 
-    public function testPropertiesWithTheTypeCarbonBecomeCarbonDates()
+    public function testPropertiesWithTheTypeCarbonBecomeCarbonDates(): void
     {
         $dateDTO = $this->buildDateDTO();
 
@@ -131,7 +133,7 @@ final class SimpleDTOTest extends TestCase
         self::assertEquals('9/11', $dateDTO->name);
     }
 
-    public function testCanEasilyOutputToArray()
+    public function testCanEasilyOutputToArray(): void
     {
         $expected = [
             'name'     => 'Challenger Disaster',
@@ -145,7 +147,7 @@ final class SimpleDTOTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function testCanEasilyBeJsonEncoded()
+    public function testCanEasilyBeJsonEncoded(): void
     {
         $expected = '{"name":"9\/11","remember":"2001-09-11T13:46:00.000000Z"}';
         $dateDTO = $this->buildDateDTO();
@@ -153,7 +155,7 @@ final class SimpleDTOTest extends TestCase
         self::assertEquals($expected, json_encode($dateDTO));
     }
 
-    public function testCanEasilyBeJsonDecoded()
+    public function testCanEasilyBeJsonDecoded(): void
     {
         $json = '{"name":"9\/11","remember":"2001-09-11T13:46:00.000000Z"}';
         $dateDTO = $this->buildDateDTO(json_decode($json, true));
@@ -164,7 +166,7 @@ final class SimpleDTOTest extends TestCase
         self::assertEquals('9/11', $dateDTO->name);
     }
 
-    public function testNullablePropertiesAreAllowed()
+    public function testNullablePropertiesAreAllowed(): void
     {
         try {
             /**
@@ -192,7 +194,7 @@ final class SimpleDTOTest extends TestCase
     }
 
     /** @test Every property is nullable with Permissive Move */
-    public function testEveryPropertyIsNullableWithPermissiveMode()
+    public function testEveryPropertyIsNullableWithPermissiveMode(): void
     {
         $testNonNullabbleWithNulls = function () {
             $info = ['firstName' => 'Nataly', 'lastName' => null, 'age' => null, 'height' => null];
@@ -280,7 +282,7 @@ JSON;
         return json_decode($expectedJSON, true);
     }
 
-    public function testCanBeSerialized()
+    public function testCanBeSerialized(): SimpleDTO
     {
         $dto = new MyTypedPropertyTestDTO([
             'year' => 2019,
@@ -298,7 +300,7 @@ JSON;
     /**
      * @depends testCanBeSerialized
      */
-    public function testCanBeUnserialized(SimpleDTO $origDTO)
+    public function testCanBeUnserialized(SimpleDTO $origDTO): void
     {
         $serializedJSON = $this->getSerializedDTO();
         $awokenDTO = unserialize($serializedJSON);
@@ -306,7 +308,7 @@ JSON;
         self::assertEquals($origDTO->toArray(), $awokenDTO->toArray());
     }
 
-    public function testExtraValidationCanBeAdded()
+    public function testExtraValidationCanBeAdded(): void
     {
         try {
             /**
@@ -315,7 +317,7 @@ JSON;
              */
             new class(['name' => 'Theodore R. Smith']) extends SimpleDTO
             {
-                protected function extraValidation(array $input)
+                protected function extraValidation(array $input): void
                 {
                     $ifThisThenThat = [$this, 'ifThisThenThat'];
                     $ifThisThenThat($input, 'name', 'Theodore R. Smith', 'age');
@@ -332,7 +334,7 @@ JSON;
          */
         $dto = new class(['name' => 'Theodore R. Smith', 'age' => 37.426]) extends SimpleDTO
         {
-            protected function extraValidation(array $input)
+            protected function extraValidation(array $input): void
             {
                 $ifThisThenThat = [$this, 'ifThisThenThat'];
                 $ifThisThenThat($input, 'name', 'Theodore R. Smith', 'age');
@@ -349,7 +351,7 @@ JSON;
         self::assertSame($expected, $dto->toArray());
     }
 
-    public function testCanGetTheInternalData()
+    public function testCanGetTheInternalData(): void
     {
         $dateDTO = $this->buildDateDTO();
         $expected = [
@@ -360,7 +362,7 @@ JSON;
         self::assertEquals($expected, $dateDTO->getData());
     }
 
-    public function testCanIdentifyIfItIsPermissiveOrNot()
+    public function testCanIdentifyIfItIsPermissiveOrNot(): void
     {
         $dateDTO = $this->buildDateDTO();
         self::assertFalse($dateDTO->isPermissive());
@@ -369,7 +371,7 @@ JSON;
     /**
      * @dataProvider provideTestCases
      */
-    public function testConvertValueToArray($input, $expected)
+    public function testConvertValueToArray($input, $expected): void
     {
         $dto = new class([], []) extends SimpleDTO {};
 
@@ -381,7 +383,7 @@ JSON;
         self::assertEquals($expected, $output);
     }
 
-    public static function provideTestCases()
+    public static function provideTestCases(): array
     {
         return [
             // An array with values that aren't objects.
@@ -404,7 +406,7 @@ JSON;
         ];
     }
 
-    public function testConstructorAssignsDefaultValues()
+    public function testConstructorAssignsDefaultValues(): void
     {
         // Test a property that does not have a value in the input but has a default value.
         $dto = new class([], []) extends SimpleDTO {
@@ -427,6 +429,43 @@ JSON;
             protected string $name;
         };
         self::assertEquals(['name' => 'input name'], $dto->toArray());
+    }
+
+    /** @testdox Can ignore protected properties with the #[IgnoreDTO] Attribute. */
+    public function testCanIgnoreProtectedPropertiesWithAttribute(): void
+    {
+        if (method_exists(ReflectionClass::class, 'getAttributes') === false) {
+            // Skip the test for PHP versions lower than 8.0 without Attributes support.
+            self::assertTrue(true);
+            return;
+        }
+
+        try {
+            $testDTO = new class(['name' => 'Sofia', 'birthYear' => 2010]) extends SimpleDTO {
+                #[IgnoreAsDTO]
+                protected int $age;
+
+                protected string $name;
+                protected int $birthYear;
+                public function calcAge(): int
+                {
+                    $this->age = date('Y') - $this->birthYear;
+
+                    return $this->age;
+                }
+            };
+        } catch (InvalidDataTypeException $e) {
+            self::fail("Couldn't create a DTO with an ignored-by-attribute protected property.");
+        }
+
+        $expectedResult = [
+            'name'      => 'Sofia',
+            'birthYear' => 2010
+        ];
+        $expectedAge = date('Y') - 2010;
+
+        self::assertEquals($expectedResult, $testDTO->toArray());
+        self::assertEquals($expectedAge, $testDTO->calcAge());
     }
 }
 

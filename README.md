@@ -114,7 +114,55 @@ Well, just instantiate the parent class like this:
     */
 ```
 
-## NestedDTOs
+### WriteOnce DTOs
+
+Sometimes, you may need to initialize one or more values of a DTO after it has been created. This is particularly
+common for stateful DTOs via multiple round-trips in certain APIs (particularly Zuora's).
+
+To overcome the stateless nature of traditional Data Type Objects, you can use the `WriteOnce` trait.
+
+This will enable you to initialize a DTO with *null* and *uninitialized* properties, and set them *once* and only.
+
+Also, you must set every property before you can serialize or `json_encode()` the object, send it to `toArray()`, etc.
+
+```php
+/**
+* @property string $name
+*/
+class CityDTO extends SimpleDTO
+{
+    use WriteOnce;
+
+    protected int $population;
+}
+
+$cityDTO = new CityDTO(['name' => 'Dubai']);
+dd($cityDTO);
+```
+
+### Ignore certain protected properties.
+
+If you are using PHP 8.0 and above, you can have SimpleDTO ignore any particular `protected` property (PHP will treat it
+like any regular protected property) using the `#[IgnoreAsDTO]` Attribute:
+
+```php
+$testDTO = new class(['name' => 'Sofia', 'birthYear' => 2010]) extends SimpleDTO {
+    #[IgnoreAsDTO]
+    protected int $age;
+
+    protected string $name;
+    protected int $birthYear;
+
+    public function calcAge(): int
+    {
+        $this->age = date('Y') - $this->birthYear;
+
+        return $this->age;
+    }
+};
+```
+
+### NestedDTOs
 
 You can nest DTOs inside of each other. 
 
@@ -128,7 +176,7 @@ You can nest DTOs inside of each other.
     /**
      * @property MyTestDTO $myDTO
      */
-    $dto = new class(['myDTO' => $myDTO], ['myDTO' => MyTestDTO::class]) extends NestedDTO
+    $dto = new class(['myDTO' => $myDTO]) extends NestedDTO
     {
     };
     
@@ -174,7 +222,8 @@ PHPExperts\SimpleDTO\SimpleDTO
  ✔ Can be unserialized  
  ✔ Extra validation can be added  
  ✔ Can get the internal data  
- ✔ Can identify if it is permissive or not
+ ✔ Can identify if it is permissive or not  
+ ✔ Can ignore protected properties with the #[IgnoreDTO] Attribute.
 
 PHPExperts\SimpleDTO\NestedDTO  
  ✔ Will construct nested DTOs  

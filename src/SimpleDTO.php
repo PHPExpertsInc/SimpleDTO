@@ -116,6 +116,15 @@ abstract class SimpleDTO implements SimpleDTOContract
             }
 
             $propertyName = $property->getName();
+            // Check for the #[IgnoreAsDTO] attribute
+            if (method_exists($property, 'getAttributes')) {
+                $attributes = $property->getAttributes(IgnoreAsDTO::class);
+                if (!empty($attributes)) {
+                    continue;
+                }
+            }
+
+            $propertyName = $property->getName();
 
             if (empty($input[$propertyName])) {
                 if (method_exists($property, 'hasDefaultValue')) {
