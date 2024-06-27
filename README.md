@@ -114,7 +114,29 @@ Well, just instantiate the parent class like this:
     */
 ```
 
-## NestedDTOs
+### Ignore certain protected properties.
+
+If you are using PHP 8.0 and above, you can have SimpleDTO ignore any particular `protected` property (PHP will treat it
+like any regular protected property) using the `#[IgnoreAsDTO]` Attribute:
+
+```php
+$testDTO = new class(['name' => 'Sofia', 'birthYear' => 2010]) extends SimpleDTO {
+    #[IgnoreAsDTO]
+    protected int $age;
+
+    protected string $name;
+    protected int $birthYear;
+
+    public function calcAge(): int
+    {
+        $this->age = date('Y') - $this->birthYear;
+
+        return $this->age;
+    }
+};
+```
+
+### NestedDTOs
 
 You can nest DTOs inside of each other. 
 
@@ -174,7 +196,8 @@ PHPExperts\SimpleDTO\SimpleDTO
  ✔ Can be unserialized  
  ✔ Extra validation can be added  
  ✔ Can get the internal data  
- ✔ Can identify if it is permissive or not
+ ✔ Can identify if it is permissive or not  
+ ✔ Can ignore protected properties with the #[IgnoreDTO] Attribute.
 
 PHPExperts\SimpleDTO\NestedDTO  
  ✔ Will construct nested DTOs  

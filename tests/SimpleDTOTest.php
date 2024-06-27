@@ -18,8 +18,10 @@ use Carbon\Carbon;
 use Error;
 use LogicException;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
+use PHPExperts\SimpleDTO\IgnoreAsDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 /** @testdox PHPExperts\SimpleDTO\SimpleDTO */
 final class SimpleDTOTest extends TestCase
@@ -427,6 +429,43 @@ JSON;
             protected string $name;
         };
         self::assertEquals(['name' => 'input name'], $dto->toArray());
+    }
+
+    /** @testdox Can ignore protected properties with the #[IgnoreDTO] Attribute. */
+    public function testCanIgnoreProtectedPropertiesWithAttribute(): void
+    {
+        if (method_exists(ReflectionClass::class, 'getAttributes') === false) {
+            // Skip the test for PHP versions lower than 8.0 without Attributes support.
+            self::assertTrue(true);
+            return;
+        }
+
+        try {
+            $testDTO = new class(['name' => 'Sofia', 'birthYear' => 2010]) extends SimpleDTO {
+                #[IgnoreAsDTO]
+                protected int $age;
+
+                protected string $name;
+                protected int $birthYear;
+                public function calcAge(): int
+                {
+                    $this->age = date('Y') - $this->birthYear;
+
+                    return $this->age;
+                }
+            };
+        } catch (InvalidDataTypeException $e) {
+            self::fail("Couldn't create a DTO with an ignored-by-attribute protected property.");
+        }
+
+        $expectedResult = [
+            'name'      => 'Sofia',
+            'birthYear' => 2010
+        ];
+        $expectedAge = date('Y') - 2010;
+
+        self::assertEquals($expectedResult, $testDTO->toArray());
+        self::assertEquals($expectedAge, $testDTO->calcAge());
     }
 }
 
