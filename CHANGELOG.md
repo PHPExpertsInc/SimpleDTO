@@ -1,3 +1,12 @@
+## v3.7.0
+
+* **[2024-06-26 23:23:03 CDT]** Added documentation for WriteOnce.
+* **[2024-06-26 22:59:47 CDT]** Added a mechanism to support normal PHP protected properties via Attributes.
+* **[2024-06-26 05:38:00 CDT]** Majorly refactored NestedDTO to remove the need for passing in an array of expected DTOs.
+* **[2024-06-26 00:40:10 CDT]** Removed dead validation code in the NestedDTO.
+* **[2024-04-29 15:23:04 CDT]** [m] Added tests for the README.
+* **[2024-06-26 22:57:43 CDT]** [m] Added universal method return types to SimpleDTOTest.
+
 ## v3.6.0
 
 * **[2024-04-26 16:40:51 CDT]** Boosted the requirements to PHP v7.4.
