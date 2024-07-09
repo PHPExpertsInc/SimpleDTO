@@ -1,3 +1,7 @@
+## v3.7.1
+
+* **[2024-07-09 06:29:19 CDT]** Added support for Carbon 3.x and phpexperts/dockerize v10.x.
+
 ## v3.7.0
 
 * **[2024-06-26 23:23:03 CDT]** Added documentation for WriteOnce.
