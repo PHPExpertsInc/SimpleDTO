@@ -22,7 +22,7 @@
     "require": {
         "php": ">=7.4",
         "ext-json": "*",
-        "nesbot/carbon": "1.*|2.*",
+        "nesbot/carbon": "2.*|3.*",
         "phpexperts/datatype-validator": "^1.5"
     },
     "require-dev": {
@@ -31,7 +31,7 @@
         "symfony/var-dumper": "*",
         "povils/phpmnd": "*",
         "squizlabs/php_codesniffer": "*",
-        "phpexperts/dockerize": "*"
+        "phpexperts/dockerize": "^10.0"
     },
     "autoload": {
         "psr-4": {
