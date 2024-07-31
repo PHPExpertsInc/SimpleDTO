@@ -18,6 +18,7 @@ use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 /** @testdox PHPExperts\SimpleDTO\NestedDTO */
 final class NestedDTOTest extends TestCase
@@ -451,5 +452,45 @@ final class NestedDTOTest extends TestCase
         ];
 
         self::assertEquals($expected, $nestedDTO->getData());
+    }
+
+    public function testInvalidDataTypeExceptionForArrayProperties()
+    {
+        $input = ['property' => 'not_an_array', 'newProperty' => 'also_not_an_array'];
+        $nestedDTO = new class([]) extends NestedDTO {};
+        $reflection = new ReflectionClass($nestedDTO);
+
+        $method = $reflection->getMethod('processDTOArray'); // Replace with actual method name
+        $method->setAccessible(true);
+
+        try {
+            $method->invokeArgs($nestedDTO, [$input, 'property', 'newProperty', null]);
+            self::fail('Worked when it should not have.');
+        } catch (\InvalidArgumentException $e) {
+            self::assertStringContainsString('::$property must be an array of property', $e->getMessage());
+        }
+    }
+
+    public function testInvalidDataTypeExceptionForMalformedDTOClass()
+    {
+        $input = [
+            'dtoClass' => 'invalid_class_structure'
+        ];
+        $property = 'property';
+        $newProperty = 'newProperty';
+
+        $nestedDTO = new class([]) extends NestedDTO {};
+        $reflection = new ReflectionClass($nestedDTO);
+
+        $method = $reflection->getMethod('processDTOArray'); // Replace with actual method name
+        $method->setAccessible(true);
+
+        try {
+            $method->invokeArgs($nestedDTO, [&$input, $property, $input['dtoClass'], null]);
+            self::fail('Expected InvalidDataTypeException not thrown');
+        } catch (InvalidDataTypeException $exception) {
+            self::assertStringContainsString('A malformed DTO class was passed.', $exception->getMessage());
+        }
+
     }
 }
