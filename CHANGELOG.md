@@ -1,6 +1,8 @@
 ## v3.7.1
 
 * **[2024-07-09 06:29:19 CDT]** Added support for Carbon 3.x and phpexperts/dockerize v10.x.
+* **[2024-07-30 21:12:12 CDT]** [m] Added some more unit test code coverage.
+* **[2024-07-30 21:14:36 CDT]** [m] Added a tombstone for potentially dead code.
 
 ## v3.7.0
 
