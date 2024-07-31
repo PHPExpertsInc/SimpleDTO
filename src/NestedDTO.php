@@ -73,7 +73,22 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
 
             if (is_array($dtoClass)) {
                 if (empty($dtoClass[0]) || !is_object($dtoClass[0]) && !is_string($dtoClass[0])) {
-                    throw new InvalidDataTypeException('A malformed DTO class was passed.');
+                    $logException = function (Exception $e) {
+                        $logFile = '/tmp/simple-dto.log';
+                        $currentTime = date('Y-m-d H:i:s');
+                        $logMessage = "[$currentTime] Exception: " . $e->getMessage() . "\n";
+                        $logMessage .= "File: " . $e->getFile() . " Line: " . $e->getLine() . "\n";
+                        $logMessage .= "Backtrace:\n" . $e->getTraceAsString() . "\n\n";
+
+                        file_put_contents($logFile, $logMessage, FILE_APPEND);
+                    };
+
+                    try {
+                        throw new InvalidDataTypeException('A malformed DTO class was passed.');
+                    } catch (InvalidDataTypeException $e) {
+                        $logException($e);
+                        throw $e;
+                    }
                 }
 
                 $dtoClass = $dtoClass[0];
