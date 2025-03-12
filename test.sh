@@ -1,6 +1,6 @@
 #!/bin/bash
 
-time for PHPV in 7.4 8.0 8.1 8.2 8.3; do
+time for PHPV in 7.4 8.0 8.1 8.2 8.3 8.4; do
     PHP_VERSION=$PHPV composer update
     PHPUNIT_V=''
     if [ $PHPV == '7.2' ]; then
@@ -12,7 +12,7 @@ time for PHPV in 7.4 8.0 8.1 8.2 8.3; do
     fi
 
 
-    if [ $PHPV == '8.2' ]; then
+    if [ $PHPV == '8.3' ]; then
         PHP_VERSION=$PHPV-debug phpunit -c phpunit.v${PHPUNIT_V}.xml
     else
         PHP_VERSION=$PHPV phpunit -c phpunit.v${PHPUNIT_V}.xml
