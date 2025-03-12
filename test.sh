@@ -7,8 +7,10 @@ time for PHPV in 7.4 8.0 8.1 8.2 8.3 8.4; do
         PHPUNIT_V='8'
     elif [ $PHPV == '7.3' ] || [ $PHPV == '7.4' ] || [ $PHPV == '8.0' ]; then
         PHPUNIT_V='9'
-    else
+    elif [ $PHPV == '8.1' ]; then
         PHPUNIT_V='10'
+    else
+        PHPUNIT_V='11'
     fi
 
 
