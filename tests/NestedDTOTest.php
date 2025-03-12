@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2024 PHP Experts, Inc.
+ * Copyright © 2019-2025 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -14,11 +14,13 @@
 
 namespace PHPExperts\SimpleDTO\Tests;
 
+use DateTime;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use stdClass;
 
 /** @testdox PHPExperts\SimpleDTO\NestedDTO */
 final class NestedDTOTest extends TestCase
@@ -237,10 +239,6 @@ final class NestedDTOTest extends TestCase
         try {
             $serialized = serialize($myTypedPropertyDTO);
             $actual = unserialize($serialized);
-//            dd([
-//                'serialized'   => $serialized,
-//                'unserialized' => $actual
-//            ]);
         } catch (InvalidDataTypeException $e) {
             dd($e->getReasons());
         }
@@ -454,7 +452,8 @@ final class NestedDTOTest extends TestCase
         self::assertEquals($expected, $nestedDTO->getData());
     }
 
-    public function testInvalidDataTypeExceptionForArrayProperties()
+    /** @testdox Throws an InvalidDataTypeException for invalid array properties */
+    public function testInvalidDataTypeExceptionForInvalidArrayProperties()
     {
         $input = ['property' => 'not_an_array', 'newProperty' => 'also_not_an_array'];
         $nestedDTO = new class([]) extends NestedDTO {};
@@ -464,20 +463,20 @@ final class NestedDTOTest extends TestCase
         $method->setAccessible(true);
 
         try {
-            $method->invokeArgs($nestedDTO, [$input, 'property', 'newProperty', null]);
+            $method->invokeArgs($nestedDTO, [&$input, 'property', 'newProperty', null]);
             self::fail('Worked when it should not have.');
         } catch (\InvalidArgumentException $e) {
             self::assertStringContainsString('::$property must be an array of property', $e->getMessage());
         }
     }
 
-    public function testInvalidDataTypeExceptionForMalformedDTOClass()
+    /** @testdox Throws an InvalidDataTypeException for empty DTO classes */
+    public function testThrowsInvalidDataTypeExceptionForEmptyDTOArray()
     {
         $input = [
-            'dtoClass' => 'invalid_class_structure'
+            'dtoClass' => []
         ];
-        $property = 'property';
-        $newProperty = 'newProperty';
+        $property = 'dtoClass';
 
         $nestedDTO = new class([]) extends NestedDTO {};
         $reflection = new ReflectionClass($nestedDTO);
@@ -489,8 +488,36 @@ final class NestedDTOTest extends TestCase
             $method->invokeArgs($nestedDTO, [&$input, $property, $input['dtoClass'], null]);
             self::fail('Expected InvalidDataTypeException not thrown');
         } catch (InvalidDataTypeException $exception) {
-            self::assertStringContainsString('A malformed DTO class was passed.', $exception->getMessage());
+            //dd($exception->getMessage());
+            self::assertStringContainsString('No DTOs could be found in the NestedDTO.', $exception->getMessage());
         }
 
+    }
+
+    /** @testdox Throws an InvalidDataTypeException for malformed DTO classes */
+    public function testThrowsInvalidDataTypeExceptionForMalformedDTOClasses()
+    {
+        // Setup a proper array input structure for processDTOArray
+        $input = [
+            'items' => ['some_item'] // An array with at least one element
+        ];
+
+        // This is the malformed DTO class definition - an array without a valid class in position 0
+        $malformedDTOClass = [null]; // or [] or [42] - anything that's not a valid class
+
+        // Create an anonymous NestedDTO instance for testing
+        $nestedDTO = new class([]) extends NestedDTO {};
+
+        // Use reflection to access the private method
+        $reflection = new ReflectionClass($nestedDTO);
+        $method = $reflection->getMethod('processDTOArray');
+        $method->setAccessible(true);
+
+        // Now test the exception is thrown properly
+        $this->expectException(InvalidDataTypeException::class);
+        $this->expectExceptionMessage('A malformed DTO class was passed.');
+
+        // Call the method with a reference to input (as it modifies the array)
+        $method->invokeArgs($nestedDTO, [&$input, 'items', $malformedDTOClass, null]);
     }
 }
