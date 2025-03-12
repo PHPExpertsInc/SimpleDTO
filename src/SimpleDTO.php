@@ -48,7 +48,7 @@ abstract class SimpleDTO implements SimpleDTOContract
      * @param mixed[]                $options
      * @param DataTypeValidator|null $validator
      */
-    public function __construct(array $input, array $options = [], DataTypeValidator $validator = null)
+    public function __construct(array $input, array $options = [], ?DataTypeValidator $validator = null)
     {
         $this->options = $options;
 

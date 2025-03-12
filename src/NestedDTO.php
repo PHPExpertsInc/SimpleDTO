@@ -130,7 +130,7 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
      * @param mixed[]|null           $options
      * @param DataTypeValidator|null $validator
      */
-    public function __construct(array $input, array $DTOs = [], array $options = null, DataTypeValidator $validator = null)
+    public function __construct(array $input, array $DTOs = [], ?array $options = null, ?DataTypeValidator $validator = null)
     {
         $filterArraySymbol = function (array $DTOs): array {
             $results = [];
