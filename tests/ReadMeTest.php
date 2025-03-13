@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2024 PHP Experts, Inc.
+ * Copyright © 2024-2025 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -20,6 +20,7 @@ use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPExperts\SimpleDTO\WriteOnce;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,10 +32,11 @@ class CityDTO extends SimpleDTO
     protected int $population;
 }
 
-/** @testdox PHPExperts\SimpleDTO\WriteOnceTrait */
 final class ReadMeTest extends TestCase
 {
-    public function testCanRunTheReadMeCodeSuccessfully()
+    /** @test */
+    #[Test]
+    public function canRunTheReadMeCodeSuccessfully()
     {
         $birthdayDTO = new BirthdayDTO([
             'name' => 'Donald J. Trump',

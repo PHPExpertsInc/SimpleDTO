@@ -1,3 +1,14 @@
+## v3.8.0
+
+* **[2025-03-13 17:31:31 CDT]** Upgraded to PHPUnit v12 and added attributes for every phpunit @tag.
+* **[2025-03-13 16:37:22 CDT]** Upgraded to PHP Experts, Inc's phar-distributed fork of povils/phpmnd.
+* **[2025-03-13 16:36:45 CDT]** Upgraded to phpexperts/dockerize v12.1.0.
+* **[2025-03-12 14:42:07 CDT]** Majorly rewrote NestedDTO::processDTOArray() and tests for simplicity, efficiency, and correct behavior.
+* **[2025-03-12 14:32:48 CDT]** Upgraded to PHPUnit v10.5.32 and v11.
+* **[2025-03-12 13:58:52 CDT]** Added support for PHP v8.4.
+* **[2025-03-12 13:56:41 CDT]** Fixed PHP 8.4 deprecations.
+* **[2024-07-30 21:12:12 CDT]** [m] Added some more unit test code coverage.
+
 ## v3.7.1
 
 * **[2024-07-09 06:29:19 CDT]** Added support for Carbon 3.x and phpexperts/dockerize v10.x.

@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2024 PHP Experts, Inc.
+ * Copyright © 2019-2025 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -17,9 +17,12 @@ namespace PHPExperts\SimpleDTO\Tests;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPExperts\SimpleDTO\WriteOnce;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 /** @testdox PHPExperts\SimpleDTO\WriteOnceTrait */
+#[TestDox('PHPExperts\SimpleDTO\WriteOnceTrait')]
 final class WriteOnceTest extends TestCase
 {
     private function buildWriteOnceDTO(): SimpleDTO
@@ -93,6 +96,7 @@ TEXT;
     }
 
     /** @testdox Will validate when toArray() is called */
+    #[TestDox('Will validate when toArray() is called')]
     public function testWillValidateWhenToArrayIsCalled()
     {
         $writeOnceDTO = $this->buildWriteOnceDTO();
@@ -132,6 +136,7 @@ TEXT;
     }
 
     /** @testdox Write-Once values must validate */
+    #[TestDox('Write-Once values must validate')]
     public function testWriteOnceValuesMustValidate()
     {
         $writeOnceDTO = $this->buildWriteOnceDTO();

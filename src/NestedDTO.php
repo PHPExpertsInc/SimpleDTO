@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2024 PHP Experts, Inc.
+ * Copyright © 2019-2025 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -14,6 +14,7 @@
 
 namespace PHPExperts\SimpleDTO;
 
+use Exception;
 use PHPExperts\DataTypeValidator\DataTypeValidator;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 
@@ -56,52 +57,59 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
      */
     private function processDTOArray(array &$input, string $property, $dtoClass, ?array $options): void
     {
-        $newProperty = substr($property, -2) === '[]' ? substr($property, 0, -2) : $property;
+        // Extract the base property name without array suffix
+        $baseProperty = substr($property, -2) === '[]' ? substr($property, 0, -2) : $property;
 
-        if (!is_array($input[$property] ?? null) && !is_array($input[$newProperty] ?? null)) {
+        // Validate array input
+        if (!is_array($input[$property] ?? null) && !is_array($input[$baseProperty] ?? null)) {
             $self = get_class($this);
-
             throw new InvalidDataTypeException("$self::\$$property must be an array of $property");
         }
 
-        $foundDTOArray = $input[$newProperty] ?? $input[$property];
+        // Find the array to process
+        $foundDTOArray = $input[$baseProperty] ?? $input[$property] ?? null;
 
-        foreach ($foundDTOArray as $index => $value) {
-            if (isset($input[$property]) && $foundDTOArray === $input[$property]) {
-                unset($input[$property]);
-            }
-
-            if (is_array($dtoClass)) {
-                if (empty($dtoClass[0]) || !is_object($dtoClass[0]) && !is_string($dtoClass[0])) {
-                    $logException = function (Exception $e) {
-                        $logFile = '/tmp/simple-dto.log';
-                        $currentTime = date('Y-m-d H:i:s');
-                        $logMessage = "[$currentTime] Exception: " . $e->getMessage() . "\n";
-                        $logMessage .= "File: " . $e->getFile() . " Line: " . $e->getLine() . "\n";
-                        $logMessage .= "Backtrace:\n" . $e->getTraceAsString() . "\n\n";
-
-                        file_put_contents($logFile, $logMessage, FILE_APPEND);
-                    };
-
-                    try {
-                        throw new InvalidDataTypeException('A malformed DTO class was passed.');
-                    } catch (InvalidDataTypeException $e) {
-                        $logException($e);
-                        throw $e;
-                    }
-                }
-
-                $dtoClass = $dtoClass[0];
-            }
-
-            if (!($value instanceof $dtoClass) && !is_array($value) && !($value instanceof \stdClass)) {
-                $input[$newProperty] = $this->convertToDTO($dtoClass, $foundDTOArray, $options, $property);
-
-                break;
-            }
-
-            $input[$newProperty][$index] = $this->convertToDTO($dtoClass, $value, $options, $property);
+        if (empty($foundDTOArray)) {
+            throw new InvalidDataTypeException('No DTOs could be found in the NestedDTO.');
         }
+
+        // Normalize the DTO class
+        if (is_array($dtoClass)) {
+            if (empty($dtoClass[0]) || !is_object($dtoClass[0]) && !is_string($dtoClass[0])) {
+                throw new InvalidDataTypeException('A malformed DTO class was passed.');
+            }
+
+            $dtoClass = $dtoClass[0];
+        }
+
+        // Clean up input if needed
+        if (isset($input[$property]) && $foundDTOArray === $input[$property]) {
+            unset($input[$property]);
+        }
+
+        // Process the array
+        foreach ($foundDTOArray as $index => $value) {
+            // Special case: If value is a scalar (not an array, not a DTO, not an stdClass)
+            // then convert the entire array at once
+            if (!($value instanceof $dtoClass) && !is_array($value) && !($value instanceof \stdClass)) {
+                $input[$baseProperty] = $this->convertToDTO($dtoClass, $foundDTOArray, $options, $property);
+                break; // Important: stop after first item, as in original code
+            }
+
+            // Normal case: convert each value individually
+            $input[$baseProperty][$index] = $this->convertToDTO($dtoClass, $value, $options, $property);
+        }
+    }
+    private function normalizeDTOClass($dtoClass): string
+    {
+        if (is_array($dtoClass)) {
+            if (empty($dtoClass[0]) || !is_object($dtoClass[0]) && !is_string($dtoClass[0])) {
+                throw new InvalidDataTypeException('A malformed DTO class was passed.');
+            }
+            return $dtoClass[0];
+        }
+
+        return $dtoClass;
     }
 
     /**
@@ -130,7 +138,7 @@ abstract class NestedDTO extends SimpleDTO implements SimpleDTOContract
      * @param mixed[]|null           $options
      * @param DataTypeValidator|null $validator
      */
-    public function __construct(array $input, array $DTOs = [], array $options = null, DataTypeValidator $validator = null)
+    public function __construct(array $input, array $DTOs = [], ?array $options = null, ?DataTypeValidator $validator = null)
     {
         $filterArraySymbol = function (array $DTOs): array {
             $results = [];

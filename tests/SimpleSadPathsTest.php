@@ -3,7 +3,7 @@
 /**
  * This file is part of SimpleDTO, a PHP Experts, Inc., Project.
  *
- * Copyright © 2019-2024 PHP Experts, Inc.
+ * Copyright © 2019-2025 PHP Experts, Inc.
  * Author: Theodore R. Smith <theodore@phpexperts.pro>
  *   GPG Fingerprint: 4BF8 2613 1C34 87AC D28F  2AD8 EB24 A91D D612 5690
  *   https://www.phpexperts.pro/
@@ -19,9 +19,12 @@ use InvalidArgumentException;
 use LogicException;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\SimpleDTO;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 /** @testdox SimpleDTO Sad Paths */
+#[TestDox('SimpleDTO Sad Paths')]
 final class SimpleSadPathsTest extends TestCase
 {
     public function testCannotInitializeWithANonexistingProperty()
@@ -56,6 +59,7 @@ final class SimpleSadPathsTest extends TestCase
     }
 
     /** @testdox A DTO must have class property docblocks -or- typehint for each concrete property */
+    #[TestDox('A DTO must have class property docblocks -or- typehint for each concrete property')]
     public function testADTOMustHaveClassPropertyDocblocksForEachConcreteProperty()
     {
         try {
@@ -162,6 +166,7 @@ final class SimpleSadPathsTest extends TestCase
     }
 
     /** @testdox Will not unserialize DTOs with invalid data */
+    #[TestDox('Will not unserialize DTOs with invalid data')]
     public function testWillNotUnserializeDTOsWithInvalidData()
     {
         // To build, also comment out lines 229-230 in SimpleDTO.php.
@@ -192,6 +197,7 @@ TXT;
     }
 
     /** @testdox Cannot overwrite a non-existing property */
+    #[TestDox('Cannot overwrite a non-existing property')]
     public function testCannotOverwiteANonExistingProperty()
     {
         $overwriteDTO = new MyTestDTO([
