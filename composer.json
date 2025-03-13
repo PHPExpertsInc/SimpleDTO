@@ -19,6 +19,12 @@
             "homepage": "https://www.linkedin.com/in/tedrsmith"
         }
     ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://bettergist.phpexperts.pro/"
+        }
+    ],
     "require": {
         "php": ">=7.4",
         "ext-json": "*",
@@ -29,7 +35,7 @@
         "phpunit/phpunit": "8.*|9.*|^10.5.32|11.*",
         "phpstan/phpstan": "*",
         "symfony/var-dumper": "*",
-        "povils/phpmnd": "*",
+        "povils/phpmnd": "^3.6",
         "squizlabs/php_codesniffer": "*",
         "phpexperts/dockerize": "^12.1"
     },
