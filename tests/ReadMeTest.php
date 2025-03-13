@@ -20,6 +20,7 @@ use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPExperts\SimpleDTO\WriteOnce;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,10 +32,11 @@ class CityDTO extends SimpleDTO
     protected int $population;
 }
 
-/** @testdox PHPExperts\SimpleDTO\WriteOnceTrait */
 final class ReadMeTest extends TestCase
 {
-    public function testCanRunTheReadMeCodeSuccessfully()
+    /** @test */
+    #[Test]
+    public function canRunTheReadMeCodeSuccessfully()
     {
         $birthdayDTO = new BirthdayDTO([
             'name' => 'Donald J. Trump',

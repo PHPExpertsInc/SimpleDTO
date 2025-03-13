@@ -18,11 +18,14 @@ use DateTime;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use stdClass;
 
 /** @testdox PHPExperts\SimpleDTO\NestedDTO */
+#[TestDox('PHPExperts\SimpleDTO\NestedDTO')]
 final class NestedDTOTest extends TestCase
 {
     private function buildNestedDTO(): NestedDTO
@@ -46,6 +49,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Will construct nested DTOs */
+    #[TestDox('Will construct nested DTOs')]
     public function testWillConstructNestedDTOs()
     {
         $nestedDTO = $this->buildNestedDTO();
@@ -63,6 +67,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Can construct arrays of nested DTOs */
+    #[TestDox('Can construct arrays of nested DTOs')]
     public function testCanConstructArraysOfNestedDTOs()
     {
         $myDTOs = [
@@ -101,6 +106,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Can retrieve the stored DTOs. */
+    #[TestDox('Can retrieve the stored DTOs.')]
     public function testCanRetrieveTheDTOs()
     {
         $myDTOs = [
@@ -123,6 +129,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Will convert array data into the appropriate Nested DTOs */
+    #[TestDox('Will convert array data into the appropriate Nested DTOs')]
     public function testWillConvertArrayDataIntoTheAppropriateNestedDTOs()
     {
         try {
@@ -153,6 +160,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Will convert stdClasses into the appropriate Nested DTOs */
+    #[TestDox('Will convert stdClasses into the appropriate Nested DTOs')]
     public function testWillConvertStdClassesIntoTheAppropriateNestedDTOs()
     {
         $myDTO = (object) [
@@ -179,6 +187,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Nested DTOs use Loose typing */
+    #[TestDox('Nested DTOs use Loose typing')]
     public function testNestedDTOsUseLooseTyping()
     {
         $myDTOInfo = [
@@ -207,6 +216,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Nested DTOs can be built using Typed Properties */
+    #[TestDox('Nested DTOs can be built using Typed Properties')]
     public function testNestedDTOsCanBeBuiltUsingTypedProperties()
     {
         if (version_compare(phpversion(), '7.4.0', '<')) {
@@ -249,6 +259,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Nested DTOs with Typed Properties use Strict typing */
+    #[TestDox('Nested DTOs with Typed Properties use Strict typing')]
     public function testNestedDTOsWithTypedPropertiesUseStrictTyping()
     {
         if (version_compare(phpversion(), '7.4.0', '<')) {
@@ -284,6 +295,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox All registered Nested DTOs are required */
+    #[TestDox('All registered Nested DTOs are required')]
     public function testAllRegisteredNestedDTOsAreRequired()
     {
         $myDTO = new MyTypedPropertyTestDTO([
@@ -307,6 +319,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Optional, unregistered, Nested DTOs are handled gracefully */
+    #[TestDox('Optional, unregistered, Nested DTOs are handled gracefully')]
     public function testOptionalUnregisteredNestedDTOsAreHandledGracefully()
     {
         $myDTO = (object) [
@@ -366,9 +379,8 @@ final class NestedDTOTest extends TestCase
         return $nestedDTO;
     }
 
-    /**
-     * @depends testCanBeSerialized
-     */
+    /** @depends testCanBeSerialized */
+    #[Depends('testCanBeSerialized')]
     public function testCanBeUnserialized(SimpleDTO $origDTO)
     {
         $serialized = $this->getSerializedDTO();
@@ -383,6 +395,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Can validate the DTO manually */
+    #[TestDox('Can validate the DTO manually')]
     public function testCanValidateTheDTOManually()
     {
         $nestedDTO = $this->buildNestedDTO();
@@ -453,6 +466,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Throws an InvalidDataTypeException for invalid array properties */
+    #[TestDox('Throws an InvalidDataTypeException for invalid array properties')]
     public function testInvalidDataTypeExceptionForInvalidArrayProperties()
     {
         $input = ['property' => 'not_an_array', 'newProperty' => 'also_not_an_array'];
@@ -471,6 +485,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Throws an InvalidDataTypeException for empty DTO classes */
+    #[TestDox('Throws an InvalidDataTypeException for empty DTO classes')]
     public function testThrowsInvalidDataTypeExceptionForEmptyDTOArray()
     {
         $input = [
@@ -495,6 +510,7 @@ final class NestedDTOTest extends TestCase
     }
 
     /** @testdox Throws an InvalidDataTypeException for malformed DTO classes */
+    #[TestDox('Throws an InvalidDataTypeException for malformed DTO classes')]
     public function testThrowsInvalidDataTypeExceptionForMalformedDTOClasses()
     {
         // Setup a proper array input structure for processDTOArray

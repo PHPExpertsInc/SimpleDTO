@@ -20,10 +20,14 @@ use LogicException;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\IgnoreAsDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 /** @testdox PHPExperts\SimpleDTO\SimpleDTO */
+#[TestDox('PHPExperts\SimpleDTO\SimpleDTO')]
 final class SimpleDTOTest extends TestCase
 {
     /** @var SimpleDTO */
@@ -56,6 +60,7 @@ final class SimpleDTOTest extends TestCase
     }
 
     /** @testdox Public, private and static protected properties will be ignored  */
+    #[TestDox('Public, private and static protected properties will be ignored')]
     public function testPublicStaticAndPrivatePropertiesWillBeIgnored(): void
     {
         /**
@@ -82,6 +87,7 @@ final class SimpleDTOTest extends TestCase
     }
 
     /** @testdox Each DTO is immutable */
+    #[TestDox('Each DTO is immutable')]
     public function testEachDTOIsImmutable(): void
     {
         $this->testSettingAnyPropertyReturnsAnException();
@@ -193,7 +199,8 @@ final class SimpleDTOTest extends TestCase
         }
     }
 
-    /** @test Every property is nullable with Permissive Move */
+    /** @testdox Every property is nullable with Permissive Move */
+    #[TestDox('Every property is nullable with Permissive Move')]
     public function testEveryPropertyIsNullableWithPermissiveMode(): void
     {
         $testNonNullabbleWithNulls = function () {
@@ -297,9 +304,8 @@ JSON;
         return $dto;
     }
 
-    /**
-     * @depends testCanBeSerialized
-     */
+    /** @depends testCanBeSerialized */
+    #[Depends('testCanBeSerialized')]
     public function testCanBeUnserialized(SimpleDTO $origDTO): void
     {
         $serializedJSON = $this->getSerializedDTO();
@@ -368,9 +374,8 @@ JSON;
         self::assertFalse($dateDTO->isPermissive());
     }
 
-    /**
-     * @dataProvider provideTestCases
-     */
+    /** @dataProvider provideTestCases */
+    #[DataProvider('provideTestCases')]
     public function testConvertValueToArray($input, $expected): void
     {
         $dto = new class([], []) extends SimpleDTO {};
@@ -432,6 +437,7 @@ JSON;
     }
 
     /** @testdox Can ignore protected properties with the #[IgnoreDTO] Attribute. */
+    #[TestDox('Can ignore protected properties with the #[IgnoreDTO] Attribute.')]
     public function testCanIgnoreProtectedPropertiesWithAttribute(): void
     {
         if (method_exists(ReflectionClass::class, 'getAttributes') === false) {
