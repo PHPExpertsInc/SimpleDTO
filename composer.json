@@ -20,16 +20,13 @@
         }
     ],
     "repositories": [
-        {
-            "type": "composer",
-            "url": "https://bettergist.phpexperts.pro/"
-        }
+        { "type": "composer", "url": "https://bettergist.phpexperts.pro/" }
     ],
     "require": {
         "php": ">=7.4",
         "ext-json": "*",
         "nesbot/carbon": "2.*|3.*",
-        "phpexperts/datatype-validator": "^1.5"
+        "phpexperts/datatype-validator": "^1.7"
     },
     "require-dev": {
         "phpunit/phpunit": "8.*|9.*|^10.5.32|11.*|12.*",

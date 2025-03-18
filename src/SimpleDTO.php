@@ -493,5 +493,4 @@ abstract class SimpleDTO implements SimpleDTOContract
         $this->loadConcreteProperties($input);
         $this->data = $input['data'];
     }
-
 }
