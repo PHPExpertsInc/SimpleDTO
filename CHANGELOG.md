@@ -1,3 +1,7 @@
+## v3.9.0
+
+* **[2025-03-17 22:32:16 CDT]** Version 3.9.0: Added support for PHP 8.0-minimal projects by upgrading to phpexperts/datatype-validator v2.1+.
+
 ## v3.8.1
 
 * **[2025-03-17 22:01:49 CDT]** Require minimal phpexperts/datatype-validator v1.7.0.
