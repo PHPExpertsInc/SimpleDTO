@@ -1,3 +1,7 @@
+## v3.8.1
+
+* **[2025-03-17 22:01:49 CDT]** Require minimal phpexperts/datatype-validator v1.7.0.
+
 ## v3.8.0
 
 * **[2025-03-13 17:31:31 CDT]** Upgraded to PHPUnit v12 and added attributes for every phpunit @tag.
