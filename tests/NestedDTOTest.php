@@ -284,10 +284,50 @@ final class NestedDTOTest extends TestCase
 
             self::fail('NestedDTO was built with loose types.');
         } catch (InvalidDataTypeException $e) {
-            self::assertEquals('There were 2 validation errors.', $e->getMessage());
+            self::assertEquals('There were 3 validation errors.', $e->getMessage());
             self::assertEquals([
-                    'age'  => 'age is not a valid float',
-                    'year' => 'year is not a valid int',
+                    'extra' => "'extra' is not a configured DTO property",
+                    'age'   => 'age is not a valid float',
+                    'year'  => 'year is not a valid int'
+                ],
+                $e->getReasons()
+            );
+        }
+    }
+
+    /** @testdox Nested DTOs with Typed Properties use Strict typing */
+    #[TestDox('Nested DTOs with Typed Properties use Strict typing')]
+    public function testNestedDTOsWithExtraPropertiesWillWorkWithPermissiveTyping()
+    {
+        if (version_compare(phpversion(), '7.4.0', '<')) {
+            self::markTestSkipped('This functionality requires PHP 7.4 or higher.');
+        }
+
+        // Test with Loose Types
+        try {
+            $myDTOInfo = [
+                'name'  => 'PHP Experts, Inc.',
+                'age'   => null,
+                'year'  => '2019',
+                'extra' => true,
+            ];
+            $myTypedPropertyDTO = new MyTypedPropertyTestDTO($myDTOInfo);
+
+            /**
+             * @property MyTypedPropertyTestDTO $myDTO
+             */
+            $nestedDTO = new class(
+                ['myDTO' => $myTypedPropertyDTO],
+                ['myDTO' => MyTypedPropertyTestDTO::class],
+                [SimpleDTO::PERMISSIVE]
+            ) extends NestedDTO {
+            };
+
+            self::fail('NestedDTO was built with loose types.');
+        } catch (InvalidDataTypeException $e) {
+            self::assertEquals('There were 1 validation errors.', $e->getMessage());
+            self::assertEquals([
+                    'age' => 'age is not a valid float',
                 ],
                 $e->getReasons()
             );
