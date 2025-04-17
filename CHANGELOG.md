@@ -1,3 +1,9 @@
+## v3.9.1
+
+* **[2025-04-17 06:11:37 CDT]** Upgraded to phpexperts/dockerize v13.0.0.
+* **[2025-04-17 06:09:37 CDT]** [m] Fixed the tests.
+* **[2025-04-10 08:44:12 CDT]** Added compatibility with phpexperts/datatype-validator v1.8.0 and v3.0.0.
+
 ## v3.9.0
 
 * **[2025-03-17 22:32:16 CDT]** Version 3.9.0: Added support for PHP 8.0-minimal projects by upgrading to phpexperts/datatype-validator v2.1+.
