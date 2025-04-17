@@ -234,6 +234,7 @@ PHPExperts\SimpleDTO\NestedDTO
  ✔ Nested DTOs use Loose typing  
  ✔ Nested DTOs can be built using Typed Properties  
  ✔ Nested DTOs with Typed Properties use Strict typing  
+ ✔ Nested DTOs with extra properties will work with Permissive mode  
  ✔ All registered Nested DTOs are required  
  ✔ Optional, unregistered, Nested DTOs are handled gracefully  
  ✔ Can be serialized  

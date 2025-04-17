@@ -18,6 +18,7 @@ use DateTime;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
+use PHPExperts\SimpleDTO\SimpleDTOContract;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -284,13 +285,48 @@ final class NestedDTOTest extends TestCase
 
             self::fail('NestedDTO was built with loose types.');
         } catch (InvalidDataTypeException $e) {
-            self::assertEquals('There were 2 validation errors.', $e->getMessage());
+            self::assertEquals('There were 3 validation errors.', $e->getMessage());
             self::assertEquals([
-                    'age'  => 'age is not a valid float',
-                    'year' => 'year is not a valid int',
+                    'extra' => "'extra' is not a configured DTO property",
+                    'age'   => 'age is not a valid float',
+                    'year'  => 'year is not a valid int'
                 ],
                 $e->getReasons()
             );
+        }
+    }
+
+    /** @testdox Nested DTOs with extra properties will work with Permissive mode */
+    #[TestDox('Nested DTOs with extra properties will work with Permissive mode')]
+    public function testNestedDTOsWithExtraPropertiesWillWorkWithPermissiveMode()
+    {
+        // Test with Loose Types
+        try {
+            $myDTOInfo = [
+                'name'  => 'PHP Experts, Inc.',
+                'age'   => null,
+                'year'  => '2019',
+                'extra' => true,
+            ];
+            $myTypedPropertyDTO = new MyTypedPropertyTestDTO($myDTOInfo, [SimpleDTO::PERMISSIVE]);
+            self::assertInstanceOf(SimpleDTOContract::class, $myTypedPropertyDTO);
+            self::assertInstanceOf(SimpleDTO::class, $myTypedPropertyDTO);
+
+            /**
+             * @property MyTypedPropertyTestDTO $myDTO
+             */
+            $nestedDTO = new class(
+                ['myDTO' => $myTypedPropertyDTO],
+                ['myDTO' => MyTypedPropertyTestDTO::class],
+                [SimpleDTO::PERMISSIVE]
+            ) extends NestedDTO {
+            };
+
+            self::assertInstanceOf(SimpleDTOContract::class, $nestedDTO);
+            self::assertInstanceOf(SimpleDTO::class, $nestedDTO);
+            self::assertInstanceOf(NestedDTO::class, $nestedDTO);
+        } catch (InvalidDataTypeException $e) {
+            dd($e->getReasons());
         }
     }
 

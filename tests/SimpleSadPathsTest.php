@@ -22,6 +22,7 @@ use PHPExperts\SimpleDTO\SimpleDTO;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 /** @testdox SimpleDTO Sad Paths */
 #[TestDox('SimpleDTO Sad Paths')]
@@ -37,8 +38,9 @@ final class SimpleSadPathsTest extends TestCase
                 'nonexistant' => true,
             ]);
             $this->fail('A DTO with an undefined property was created.');
-        } catch (Error $e) {
-            self::assertEquals('Undefined property: PHPExperts\SimpleDTO\Tests\MyTypedPropertyTestDTO::$nonexistant.', $e->getMessage());
+        } catch (InvalidDataTypeException $e) {
+            self::assertEquals('There was 1 validation error.', $e->getMessage());
+            self::assertEquals(['nonexistant' => "'nonexistant' is not a configured DTO property"], $e->getReasons());
         }
     }
 
