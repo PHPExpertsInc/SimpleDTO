@@ -18,6 +18,7 @@ use DateTime;
 use PHPExperts\DataTypeValidator\InvalidDataTypeException;
 use PHPExperts\SimpleDTO\NestedDTO;
 use PHPExperts\SimpleDTO\SimpleDTO;
+use PHPExperts\SimpleDTO\SimpleDTOContract;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -295,14 +296,10 @@ final class NestedDTOTest extends TestCase
         }
     }
 
-    /** @testdox Nested DTOs with Typed Properties use Strict typing */
-    #[TestDox('Nested DTOs with Typed Properties use Strict typing')]
-    public function testNestedDTOsWithExtraPropertiesWillWorkWithPermissiveTyping()
+    /** @testdox Nested DTOs with extra properties will work with Permissive mode */
+    #[TestDox('Nested DTOs with extra properties will work with Permissive mode')]
+    public function testNestedDTOsWithExtraPropertiesWillWorkWithPermissiveMode()
     {
-        if (version_compare(phpversion(), '7.4.0', '<')) {
-            self::markTestSkipped('This functionality requires PHP 7.4 or higher.');
-        }
-
         // Test with Loose Types
         try {
             $myDTOInfo = [
@@ -311,7 +308,9 @@ final class NestedDTOTest extends TestCase
                 'year'  => '2019',
                 'extra' => true,
             ];
-            $myTypedPropertyDTO = new MyTypedPropertyTestDTO($myDTOInfo);
+            $myTypedPropertyDTO = new MyTypedPropertyTestDTO($myDTOInfo, [SimpleDTO::PERMISSIVE]);
+            self::assertInstanceOf(SimpleDTOContract::class, $myTypedPropertyDTO);
+            self::assertInstanceOf(SimpleDTO::class, $myTypedPropertyDTO);
 
             /**
              * @property MyTypedPropertyTestDTO $myDTO
@@ -323,14 +322,11 @@ final class NestedDTOTest extends TestCase
             ) extends NestedDTO {
             };
 
-            self::fail('NestedDTO was built with loose types.');
+            self::assertInstanceOf(SimpleDTOContract::class, $nestedDTO);
+            self::assertInstanceOf(SimpleDTO::class, $nestedDTO);
+            self::assertInstanceOf(NestedDTO::class, $nestedDTO);
         } catch (InvalidDataTypeException $e) {
-            self::assertEquals('There were 1 validation errors.', $e->getMessage());
-            self::assertEquals([
-                    'age' => 'age is not a valid float',
-                ],
-                $e->getReasons()
-            );
+            dd($e->getReasons());
         }
     }
 
